@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mark's Golf Sim Tracker</title>
+    <title>Mark's Golf Sim</title>
     <style>
         :root {
-            --bg-dark: #121212;
-            --bg-panel: #1e1e1e;
+            /* Masters Theme Colors */
+            --bg-dark: #0b4524; 
+            --bg-panel: #115c32; 
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --accent-blue: #0A84FF; /* Deep Blue for Tee */
-            --accent-green: #30D158; /* Forest Green for Approach */
-            --border-color: #333333;
+            --text-muted: #b3d9c3; 
+            --accent-yellow: #FFD520; 
+            --border-color: #1a7a44;
             --danger: #FF453A;
-            --warning: #FF9F0A; /* Sunset Orange */
+            --warning: #FF9F0A; 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -33,12 +33,11 @@
         .progress-bar {
             width: 80px; height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden;
         }
-        .progress-fill { height: 100%; background-color: var(--accent-blue); transition: width 0.3s ease; }
+        .progress-fill { height: 100%; background-color: var(--accent-yellow); transition: width 0.3s ease; }
         
         /* Dashboard */
         .dashboard { text-align: center; margin-top: 50px; }
-        .dashboard h1 { margin-bottom: 10px; font-size: 28px; }
-        .dashboard p { color: var(--text-muted); margin-bottom: 40px; }
+        .dashboard h1 { margin-bottom: 30px; font-size: 32px; color: var(--accent-yellow); font-weight: 800; letter-spacing: 1px; }
         
         /* Game UI */
         .card { background-color: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
@@ -62,11 +61,10 @@
             border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .btn:active { opacity: 0.7; }
-        .btn.selected { background-color: var(--text-main); color: var(--bg-dark); }
+        .btn.selected { background-color: var(--accent-yellow); color: #000000; border-color: var(--accent-yellow); }
         
-        .btn-primary { background-color: var(--accent-blue); color: white; width: 100%; margin-top: 10px; border: none; }
-        .btn-primary.green { background-color: var(--accent-green); }
-        .btn-outline { background-color: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); width: 100%; margin-top: 10px; }
+        .btn-primary { background-color: var(--accent-yellow); color: #000000; width: 100%; margin-top: 10px; border: none; font-weight: 700; }
+        .btn-outline { background-color: transparent; border: 1px solid var(--accent-yellow); color: var(--accent-yellow); width: 100%; margin-top: 10px; }
         .btn-back { border-color: var(--text-muted); color: var(--text-muted); width: 100%; margin-top: 10px; background-color: transparent; }
         
         /* Conditional Modifiers */
@@ -79,11 +77,11 @@
             max-width: 500px; margin: 0 auto; z-index: 100;
         }
 
-        /* Themes */
-        body.theme-tee .progress-fill { background-color: var(--accent-blue); }
-        body.theme-tee .hole-header { color: var(--accent-blue); }
-        body.theme-approach .progress-fill { background-color: var(--accent-green); }
-        body.theme-approach .hole-header { color: var(--accent-green); }
+        /* Themes - Keeping visual delineation so you know if you are on Tee or Approach */
+        body.theme-tee .progress-fill { background-color: var(--accent-yellow); }
+        body.theme-tee .hole-header { color: var(--accent-yellow); }
+        body.theme-approach .progress-fill { background-color: #ffffff; }
+        body.theme-approach .hole-header { color: #ffffff; }
         
         .hidden { display: none !important; }
     </style>
@@ -94,8 +92,7 @@
     
     <!-- DASHBOARD VIEW -->
     <div id="dashboardView" class="dashboard">
-        <h1>Sim Tracker</h1>
-        <p>Phase 1.1: Tee & Approach</p>
+        <h1>Mark's Golf Sim</h1>
         <button class="btn btn-primary" onclick="startRound()" style="padding: 20px; font-size: 20px;">Start New Round</button>
     </div>
 
@@ -156,11 +153,11 @@
 
     <!-- CHIPPING PLACEHOLDER VIEW (BUG FIX) -->
     <div id="chippingView" class="hidden dashboard">
-        <h1 style="color: var(--warning);">Sunset Orange Zone</h1>
-        <h2>Chipping Phase</h2>
+        <h1 style="color: var(--accent-yellow);">Sunset Orange Zone</h1>
+        <h2 style="color: white;">Chipping Phase</h2>
         <p id="chip-dist" style="font-size: 24px; color: white; margin: 20px 0; font-weight: bold;">Remaining Yardage: X yds</p>
-        <p style="margin-bottom: 40px;">Phase 2 UI will go here. Your round is safely paused!</p>
-        <button class="btn btn-back" onclick="goBack()" style="padding: 16px; font-size: 18px;">Back to Approach</button>
+        <p style="margin-bottom: 40px; color: var(--text-muted);">Phase 2 UI will go here. Your round is safely paused!</p>
+        <button class="btn btn-back" onclick="goBack()" style="padding: 16px; font-size: 18px; color: white; border-color: white;">Back to Approach</button>
     </div>
 </div>
 
@@ -182,7 +179,6 @@
         selectedModifier: null
     };
 
-    // Array to store deep copies of our previous shots
     let stateHistory = []; 
 
     // --- RANDOMIZATION ENGINE ---
@@ -199,7 +195,7 @@
         
         state.holes.forEach(hole => { hole.startYardage = getRandomYardage(hole.par); });
         state.currentHoleIndex = 0;
-        stateHistory = []; // Reset history for new round
+        stateHistory = []; 
         loadHole();
     }
 
@@ -234,12 +230,10 @@
     function updateUI(isBackAction = false) {
         const hole = state.holes[state.currentHoleIndex];
         
-        // Header
         document.getElementById('ui-strokes').innerText = `Strokes: ${state.currentStrokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
         
-        // Hole Data
         document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
         
         let targetText = `Remaining: ${state.remainingYardage} Yards to Pin`;
@@ -248,18 +242,16 @@
         }
         document.getElementById('ui-target-banner').innerText = targetText;
 
-        // Theme switching
         if (state.currentStrokes === 0) {
             document.body.className = 'theme-tee';
             document.getElementById('ui-target-banner').style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
             document.getElementById('ui-target-banner').style.color = 'var(--text-main)';
         } else {
             document.body.className = 'theme-approach';
-            document.getElementById('ui-target-banner').style.backgroundColor = 'var(--accent-green)';
-            document.getElementById('ui-target-banner').style.color = 'white';
+            document.getElementById('ui-target-banner').style.backgroundColor = '#ffffff';
+            document.getElementById('ui-target-banner').style.color = '#000000';
         }
 
-        // Only wipe the inputs clean if we are NOT coming from the "Back" button
         if (!isBackAction) {
             state.selectedResult = null;
             state.selectedModifier = null;
@@ -276,7 +268,6 @@
             return;
         }
 
-        // 1. SAVE EXACT STATE TO HISTORY BEFORE CALCULATIONS
         stateHistory.push({
             holeIndex: state.currentHoleIndex,
             strokes: state.currentStrokes,
@@ -287,7 +278,6 @@
             launch: document.getElementById('input-launch').value
         });
 
-        // 2. CALCULATE SHOT
         const clubDistance = parseInt(document.getElementById('input-club').value);
         let penalty = 0;
 
@@ -301,13 +291,12 @@
             state.remainingYardage = (state.remainingYardage - clubDistance) + penalty;
         } else if (state.selectedResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke and hit from the same spot.");
-            state.currentStrokes++; // Extra penalty stroke
+            state.currentStrokes++; 
         }
 
         if (state.remainingYardage < 0) state.remainingYardage = 0;
         state.currentStrokes++;
 
-        // 3. ROUTING
         if (route === 'next') {
             if (state.currentHoleIndex < 5) {
                 state.currentHoleIndex++;
@@ -318,7 +307,6 @@
             }
         } else if (route === 'continue') {
             if (state.remainingYardage <= 35) {
-                // Bug Fix: Replaced reload() with transition to Chipping Placeholder
                 document.getElementById('activeView').classList.add('hidden');
                 document.getElementById('chippingView').classList.remove('hidden');
                 document.getElementById('chip-dist').innerText = `Remaining Yardage: ${state.remainingYardage} yds`;
@@ -335,28 +323,22 @@
             return;
         }
         
-        // Hide chipping view if we happen to be in the Phase 2 placeholder
         document.getElementById('chippingView').classList.add('hidden');
         document.getElementById('activeView').classList.remove('hidden');
 
-        // Pop the last snapshot
         const prev = stateHistory.pop();
         
-        // Restore State Variables
         state.currentHoleIndex = prev.holeIndex;
         state.currentStrokes = prev.strokes;
         state.remainingYardage = prev.yardage;
         state.selectedResult = prev.result;
         state.selectedModifier = prev.modifier;
         
-        // Restore Core UI elements (True = do not wipe inputs)
         updateUI(true); 
         
-        // Restore Input Fields Manually
         document.getElementById('input-club').value = prev.club;
         document.getElementById('input-launch').value = prev.launch;
         
-        // Restore Selected Buttons
         document.querySelectorAll('.shot-btn').forEach(b => {
             if (b.innerText === prev.result) {
                 b.classList.add('selected');

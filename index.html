@@ -6,20 +6,26 @@
     <title>Mark's Golf Sim</title>
     <style>
         :root {
-            /* Masters Theme Colors */
+            /* Masters Theme Colors (Tee & Approach) */
             --bg-dark: #0b4524; 
             --bg-panel: #115c32; 
             --text-main: #ffffff;
             --text-muted: #b3d9c3; 
             --accent-yellow: #FFD520; 
             --border-color: #1a7a44;
-            --danger: #FF453A;
-            --warning: #FF9F0A; 
+            
+            /* Fringe Green Theme Colors (Chipping) */
+            --bg-chip: #1b4332;
+            --panel-chip: #2d6a4f;
+            --border-chip: #40916c;
+            
+            /* Putting Placeholder Colors */
+            --bg-putt: #2b2d42;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        body { background-color: var(--bg-dark); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--bg-dark); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.4s ease; }
         
         .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-bottom: 180px; }
         
@@ -28,36 +34,40 @@
             display: flex; justify-content: space-between; align-items: center;
             background-color: var(--bg-panel); padding: 15px; border-radius: 12px; margin-bottom: 20px;
             font-size: 14px; font-weight: 600; border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
         }
         
-        .progress-bar {
-            width: 80px; height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden;
-        }
+        .progress-bar { width: 80px; height: 8px; background-color: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background-color: var(--accent-yellow); transition: width 0.3s ease; }
         
         /* Dashboard */
         .dashboard { text-align: center; margin-top: 50px; }
         .dashboard h1 { margin-bottom: 30px; font-size: 32px; color: var(--accent-yellow); font-weight: 800; letter-spacing: 1px; }
         
-        /* Game UI */
-        .card { background-color: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+        /* Game UI Cards */
+        .card { background-color: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); transition: all 0.4s ease; }
         .hole-header { text-align: center; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
         .target-banner { 
             text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; 
             background-color: rgba(255, 255, 255, 0.1); transition: 0.3s ease;
         }
         
+        /* Chipping Specific UI */
+        .chip-target-text { font-size: 64px; font-weight: 900; text-align: center; color: var(--accent-yellow); margin: 10px 0; line-height: 1; }
+        .chip-mental-cue { text-align: center; font-size: 14px; color: #95d5b2; font-style: italic; margin-bottom: 25px; }
+        .chip-paces-input { text-align: center; font-size: 32px !important; font-weight: bold; height: 70px; }
+        
         /* Forms & Inputs */
         label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 8px; margin-top: 15px; }
         select, input[type="number"] {
-            width: 100%; padding: 16px; background-color: var(--bg-dark); color: white;
+            width: 100%; padding: 16px; background-color: rgba(0,0,0,0.3); color: white;
             border: 1px solid var(--border-color); border-radius: 12px; font-size: 16px; appearance: none;
         }
         
         /* Buttons */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         .btn {
-            padding: 16px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color);
+            padding: 16px; background-color: rgba(0,0,0,0.3); color: white; border: 1px solid var(--border-color);
             border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .btn:active { opacity: 0.7; }
@@ -65,23 +75,32 @@
         
         .btn-primary { background-color: var(--accent-yellow); color: #000000; width: 100%; margin-top: 10px; border: none; font-weight: 700; }
         .btn-outline { background-color: transparent; border: 1px solid var(--accent-yellow); color: var(--accent-yellow); width: 100%; margin-top: 10px; }
-        .btn-back { border-color: var(--text-muted); color: var(--text-muted); width: 100%; margin-top: 10px; background-color: transparent; }
+        .btn-back { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.7); width: 100%; margin-top: 10px; background-color: transparent; }
         
-        /* Conditional Modifiers */
         #modifiers-section { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         
         /* Footer sticky */
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
             padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;
-            max-width: 500px; margin: 0 auto; z-index: 100;
+            max-width: 500px; margin: 0 auto; z-index: 100; transition: all 0.4s ease;
         }
 
-        /* Themes - Keeping visual delineation so you know if you are on Tee or Approach */
-        body.theme-tee .progress-fill { background-color: var(--accent-yellow); }
-        body.theme-tee .hole-header { color: var(--accent-yellow); }
-        body.theme-approach .progress-fill { background-color: #ffffff; }
-        body.theme-approach .hole-header { color: #ffffff; }
+        /* --- THEME OVERRIDES --- */
+        /* Approach Theme */
+        body.theme-approach .target-banner { background-color: #ffffff; color: #000000; }
+        
+        /* Chipping (Fringe Green) Theme */
+        body.theme-chip { background-color: var(--bg-chip); }
+        body.theme-chip .global-header { background-color: var(--panel-chip); border-color: var(--border-chip); }
+        body.theme-chip .card { background-color: var(--panel-chip); border-color: var(--border-chip); }
+        body.theme-chip .sticky-footer { background-color: var(--panel-chip); border-color: var(--border-chip); }
+        body.theme-chip select, body.theme-chip input { border-color: var(--border-chip); }
+        body.theme-chip label { color: #b7e4c7; }
+
+        /* Putting Theme Placeholder */
+        body.theme-putt { background-color: var(--bg-putt); }
+        body.theme-putt .global-header { background-color: #3e415c; border-color: #55587a; }
         
         .hidden { display: none !important; }
     </style>
@@ -96,14 +115,15 @@
         <button class="btn btn-primary" onclick="startRound()" style="padding: 20px; font-size: 20px;">Start New Round</button>
     </div>
 
-    <!-- ACTIVE HOLE VIEW -->
-    <div id="activeView" class="hidden">
-        <div class="global-header">
-            <span id="ui-strokes">Strokes: 0</span>
-            <span id="ui-hole-counter">Hole 1 of 6</span>
-            <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
-        </div>
+    <!-- GLOBAL HEADER (Always Visible during active play) -->
+    <div id="globalHeader" class="global-header hidden">
+        <span id="ui-strokes">Strokes: 0</span>
+        <span id="ui-hole-counter">Hole 1 of 6</span>
+        <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
+    </div>
 
+    <!-- TEE & APPROACH ZONE (Phase 1) -->
+    <div id="activeView" class="hidden">
         <div class="card">
             <div class="hole-header" id="ui-hole-title">Hole 1 | Par 4 | 400 Yds</div>
             <div class="target-banner" id="ui-target-banner">Target: 400 Yards to Pin</div>
@@ -119,7 +139,7 @@
                 <option value="145">8i - 145y</option>
                 <option value="135">9i - 135y</option>
                 <option value="125">PW - 125y</option>
-                <option value="115">GW - 115y</option>
+                <option value="115">AW - 115y</option>
             </select>
 
             <label>Shot Result</label>
@@ -147,18 +167,44 @@
         <div class="sticky-footer">
             <button class="btn btn-primary" id="btn-next-hole" onclick="processShot('next')">Go to Next Hole</button>
             <button class="btn btn-outline" id="btn-continue-hole" onclick="processShot('continue')">Continue Playing Hole</button>
-            <button class="btn btn-back" id="btn-back" onclick="goBack()">Back (Undo Shot)</button>
+            <button class="btn btn-back" onclick="goBack()">Back (Undo Shot)</button>
         </div>
     </div>
 
-    <!-- CHIPPING PLACEHOLDER VIEW (BUG FIX) -->
-    <div id="chippingView" class="hidden dashboard">
-        <h1 style="color: var(--accent-yellow);">Sunset Orange Zone</h1>
-        <h2 style="color: white;">Chipping Phase</h2>
-        <p id="chip-dist" style="font-size: 24px; color: white; margin: 20px 0; font-weight: bold;">Remaining Yardage: X yds</p>
-        <p style="margin-bottom: 40px; color: var(--text-muted);">Phase 2 UI will go here. Your round is safely paused!</p>
-        <button class="btn btn-back" onclick="goBack()" style="padding: 16px; font-size: 18px; color: white; border-color: white;">Back to Approach</button>
+    <!-- CHIPPING ZONE (Phase 2) -->
+    <div id="chippingView" class="hidden">
+        <div class="card">
+            <div class="hole-header">Chipping Zone</div>
+            
+            <div class="chip-target-text" id="ui-chip-distance">22 YDS</div>
+            <div class="chip-mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
+
+            <label>Select Club</label>
+            <select id="input-chip-club">
+                <option value="56">56° Cleveland RTZ</option>
+                <option value="58">58° Mack Daddy</option>
+                <option value="AW">AW</option>
+                <option value="PW">PW</option>
+            </select>
+
+            <label>Distance to pin after chip?</label>
+            <input type="number" id="input-chip-paces" class="chip-paces-input" placeholder="Number of Paces" inputmode="numeric">
+        </div>
+
+        <div class="sticky-footer">
+            <button class="btn btn-primary" onclick="processChip()">Submit Chip & Go to Green</button>
+            <button class="btn btn-back" onclick="goBack()">Back (Undo Shot)</button>
+        </div>
     </div>
+
+    <!-- PUTTING ZONE PLACEHOLDER (Phase 3 Prep) -->
+    <div id="puttingView" class="hidden dashboard">
+        <h1 style="color: white; font-size: 42px;">Slate Gray Zone</h1>
+        <h2 style="color: var(--text-muted); margin-bottom: 20px;">Putting Green</h2>
+        <p id="putt-dist" style="font-size: 28px; color: var(--accent-yellow); font-weight: bold; margin-bottom: 40px;">X Foot Putt</p>
+        <button class="btn btn-back" onclick="goBack()" style="padding: 16px; font-size: 18px;">Back to Chipping</button>
+    </div>
+
 </div>
 
 <script>
@@ -175,6 +221,7 @@
         currentHoleIndex: 0,
         currentStrokes: 0,
         remainingYardage: 0,
+        currentZone: 'tee', // 'tee', 'approach', 'chip', 'putt'
         selectedResult: null,
         selectedModifier: null
     };
@@ -188,10 +235,10 @@
         if (par === 5) return Math.floor(Math.random() * (540 - 470 + 1)) + 470;
     }
 
-    // --- UI CONTROLLERS ---
+    // --- INITIALIZATION ---
     function startRound() {
         document.getElementById('dashboardView').classList.add('hidden');
-        document.getElementById('activeView').classList.remove('hidden');
+        document.getElementById('globalHeader').classList.remove('hidden');
         
         state.holes.forEach(hole => { hole.startYardage = getRandomYardage(hole.par); });
         state.currentHoleIndex = 0;
@@ -203,9 +250,17 @@
         state.currentStrokes = 0;
         const hole = state.holes[state.currentHoleIndex];
         state.remainingYardage = hole.startYardage;
+        
+        if (hole.par === 3 && state.remainingYardage <= 35) {
+            state.currentZone = 'chip';
+        } else {
+            state.currentZone = 'tee';
+        }
+        
         updateUI();
     }
 
+    // --- TEE/APPROACH UI LOGIC ---
     function selectResult(btn, result) {
         document.querySelectorAll('.shot-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
@@ -227,56 +282,91 @@
         state.selectedModifier = mod;
     }
 
+    // --- MAIN UI ROUTER ---
     function updateUI(isBackAction = false) {
         const hole = state.holes[state.currentHoleIndex];
         
+        // Update Global Header
         document.getElementById('ui-strokes').innerText = `Strokes: ${state.currentStrokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
         
-        document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
-        
-        let targetText = `Remaining: ${state.remainingYardage} Yards to Pin`;
-        if (state.currentStrokes === 0 && hole.par !== 3) {
-            targetText = `Fairway Target: ${state.remainingYardage} Yards`;
-        }
-        document.getElementById('ui-target-banner').innerText = targetText;
+        // Hide all views first
+        document.getElementById('activeView').classList.add('hidden');
+        document.getElementById('chippingView').classList.add('hidden');
+        document.getElementById('puttingView').classList.add('hidden');
 
-        if (state.currentStrokes === 0) {
-            document.body.className = 'theme-tee';
-            document.getElementById('ui-target-banner').style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            document.getElementById('ui-target-banner').style.color = 'var(--text-main)';
-        } else {
-            document.body.className = 'theme-approach';
-            document.getElementById('ui-target-banner').style.backgroundColor = '#ffffff';
-            document.getElementById('ui-target-banner').style.color = '#000000';
-        }
+        // Route based on Zone
+        if (state.currentZone === 'tee' || state.currentZone === 'approach') {
+            document.getElementById('activeView').classList.remove('hidden');
+            document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
+            
+            let targetText = `Remaining: ${state.remainingYardage} Yards to Pin`;
+            if (state.currentStrokes === 0 && hole.par !== 3) {
+                targetText = `Fairway Target: ${state.remainingYardage} Yards`;
+            }
+            document.getElementById('ui-target-banner').innerText = targetText;
 
-        if (!isBackAction) {
-            state.selectedResult = null;
-            state.selectedModifier = null;
-            document.getElementById('input-launch').value = '';
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
-            document.getElementById('modifiers-section').style.display = 'none';
+            if (state.currentStrokes === 0) {
+                document.body.className = 'theme-tee';
+            } else {
+                document.body.className = 'theme-approach';
+            }
+
+            if (!isBackAction) {
+                state.selectedResult = null;
+                state.selectedModifier = null;
+                document.getElementById('input-launch').value = '';
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+                document.getElementById('modifiers-section').style.display = 'none';
+            }
+
+        } else if (state.currentZone === 'chip') {
+            document.body.className = 'theme-chip';
+            document.getElementById('chippingView').classList.remove('hidden');
+            document.getElementById('ui-chip-distance').innerText = `${state.remainingYardage} YDS`;
+            
+            if (!isBackAction) {
+                document.getElementById('input-chip-paces').value = '';
+                document.getElementById('input-chip-club').value = '56';
+            }
+
+        } else if (state.currentZone === 'putt') {
+            document.body.className = 'theme-putt';
+            document.getElementById('puttingView').classList.remove('hidden');
+            // Assuming paces * 3 = feet
+            document.getElementById('putt-dist').innerText = `${state.remainingYardage} Foot Putt`;
         }
     }
 
-    // --- MATH ENGINE & SUBMISSION ---
+    // --- MATH ENGINE & SUBMISSIONS ---
+
+    function saveSnapshot() {
+        stateHistory.push({
+            holeIndex: state.currentHoleIndex,
+            strokes: state.currentStrokes,
+            yardage: state.remainingYardage,
+            zone: state.currentZone,
+            
+            // Tee/Approach inputs
+            club: document.getElementById('input-club').value,
+            result: state.selectedResult,
+            modifier: state.selectedModifier,
+            launch: document.getElementById('input-launch').value,
+            
+            // Chip inputs
+            chipClub: document.getElementById('input-chip-club').value,
+            chipPaces: document.getElementById('input-chip-paces').value
+        });
+    }
+
     function processShot(route) {
         if (!state.selectedResult) {
             alert("Please select a shot result before continuing.");
             return;
         }
 
-        stateHistory.push({
-            holeIndex: state.currentHoleIndex,
-            strokes: state.currentStrokes,
-            yardage: state.remainingYardage,
-            club: document.getElementById('input-club').value,
-            result: state.selectedResult,
-            modifier: state.selectedModifier,
-            launch: document.getElementById('input-launch').value
-        });
+        saveSnapshot();
 
         const clubDistance = parseInt(document.getElementById('input-club').value);
         let penalty = 0;
@@ -302,18 +392,44 @@
                 state.currentHoleIndex++;
                 loadHole();
             } else {
-                alert("Round Complete! (Dashboard save coming in Phase 2)");
+                alert("Round Complete! (Dashboard save coming)");
                 location.reload();
             }
         } else if (route === 'continue') {
             if (state.remainingYardage <= 35) {
-                document.getElementById('activeView').classList.add('hidden');
-                document.getElementById('chippingView').classList.remove('hidden');
-                document.getElementById('chip-dist').innerText = `Remaining Yardage: ${state.remainingYardage} yds`;
+                state.currentZone = 'chip';
             } else {
-                updateUI();
+                state.currentZone = 'approach';
             }
+            updateUI();
         }
+    }
+
+    function processChip() {
+        const paces = document.getElementById('input-chip-paces').value;
+        if (!paces || paces < 0) {
+            alert("Please enter a valid number of paces.");
+            return;
+        }
+
+        saveSnapshot();
+        
+        state.currentStrokes++;
+        
+        // Translate paces to feet. If paces > 7 (21 feet), he wanted to chip again, 
+        // but for now we'll route to putting screen logic block.
+        const feet = parseInt(paces) * 3;
+        
+        if (parseInt(paces) > 7) {
+            alert(`You are ${paces} paces away (outside the 7 pace mat zone). You must chip again!`);
+            state.remainingYardage = feet / 3; // roughly reset yardage to feet/3 just to stay in chip zone physically
+            state.currentZone = 'chip';
+        } else {
+            state.remainingYardage = feet; 
+            state.currentZone = 'putt';
+        }
+        
+        updateUI();
     }
 
     // --- TIME MACHINE (UNDO SHOT) ---
@@ -323,42 +439,40 @@
             return;
         }
         
-        document.getElementById('chippingView').classList.add('hidden');
-        document.getElementById('activeView').classList.remove('hidden');
-
         const prev = stateHistory.pop();
         
         state.currentHoleIndex = prev.holeIndex;
         state.currentStrokes = prev.strokes;
         state.remainingYardage = prev.yardage;
+        state.currentZone = prev.zone;
         state.selectedResult = prev.result;
         state.selectedModifier = prev.modifier;
         
         updateUI(true); 
         
-        document.getElementById('input-club').value = prev.club;
-        document.getElementById('input-launch').value = prev.launch;
-        
-        document.querySelectorAll('.shot-btn').forEach(b => {
-            if (b.innerText === prev.result) {
-                b.classList.add('selected');
-            } else {
-                b.classList.remove('selected');
-            }
-        });
-        
-        const modSection = document.getElementById('modifiers-section');
-        if (prev.result === 'Slightly Off' || prev.result === 'Way Off' || prev.result === 'Mishit') {
-            modSection.style.display = 'block';
-            document.querySelectorAll('.mod-btn').forEach(b => {
-                if (b.innerText === prev.modifier) {
-                    b.classList.add('selected');
-                } else {
-                    b.classList.remove('selected');
-                }
+        // Restore Inputs based on zone
+        if (state.currentZone === 'tee' || state.currentZone === 'approach') {
+            document.getElementById('input-club').value = prev.club;
+            document.getElementById('input-launch').value = prev.launch;
+            
+            document.querySelectorAll('.shot-btn').forEach(b => {
+                if (b.innerText === prev.result) b.classList.add('selected');
+                else b.classList.remove('selected');
             });
-        } else {
-            modSection.style.display = 'none';
+            
+            const modSection = document.getElementById('modifiers-section');
+            if (prev.result === 'Slightly Off' || prev.result === 'Way Off' || prev.result === 'Mishit') {
+                modSection.style.display = 'block';
+                document.querySelectorAll('.mod-btn').forEach(b => {
+                    if (b.innerText === prev.modifier) b.classList.add('selected');
+                    else b.classList.remove('selected');
+                });
+            } else {
+                modSection.style.display = 'none';
+            }
+        } else if (state.currentZone === 'chip') {
+            document.getElementById('input-chip-club').value = prev.chipClub;
+            document.getElementById('input-chip-paces').value = prev.chipPaces;
         }
     }
 </script>

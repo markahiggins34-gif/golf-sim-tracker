@@ -53,7 +53,7 @@
         
         .target-banner { 
             text-align: center; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; 
-            background-color: rgba(255, 255, 255, 0.1); font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1); font-size: 16px; transition: font-size 0.2s ease;
         }
         
         /* ENLARGED REMAINING TEXT FOR APPROACH SHOTS */
@@ -104,6 +104,7 @@
         .scorecard-table th { background-color: #0b4524; color: white; }
         .scorecard-table tr.total-row { background-color: #eaeaea; font-weight: bold; border-top: 2px solid #222; }
         
+        .sc-badge-wrapper { display: flex; justify-content: center; align-items: center; width: 100%; }
         .sc-badge { display: inline-flex; justify-content: center; align-items: center; width: 32px; height: 32px; font-weight: bold; font-size: 14px; }
         .sc-circle { border: 2px solid #0b4524; border-radius: 50%; color: #0b4524; }
         .sc-dcircle { border: 2px solid #0b4524; border-radius: 50%; color: #0b4524; box-shadow: 0 0 0 2px #0b4524; }
@@ -154,7 +155,7 @@
             <div class="target-banner" id="ui-target-banner">Target: 400 Yards to Pin</div>
 
             <label>Select Club</label>
-            <select id="input-club" onchange="updateLiveCalculation()">
+            <select id="input-club">
                 <option value="250">Dr (3H) - 250y</option>
                 <option value="205">3H - 205y</option>
                 <option value="195">4H - 195y</option>
@@ -234,7 +235,7 @@
         <div id="singleHoleScorecardView" class="scorecard-view hidden">
             <h2 id="ui-single-score-title" style="text-align: center; color: #0b4524; font-weight: 800; margin-bottom: 10px;">Hole Complete!</h2>
             <div style="display: flex; justify-content: center; align-items: center; margin: 15px 0;">
-                <div id="ui-single-score-badge" class="sc-badge" style="width: 70px; height: 70px; font-size: 24px;">E</div>
+                <div id="ui-single-score-badge" class="sc-badge-wrapper"><span id="ui-badge-inner" class="sc-badge">E</span></div>
             </div>
             <h3 id="ui-single-score-breakdown" style="text-align: center; font-weight: 700;">Total Score: 4</h3>
             <p id="ui-single-score-sub" style="text-align: center; color: #555; font-size: 14px; margin-bottom: 20px;"></p>
@@ -319,6 +320,9 @@
             h.paces = null;
             h.totalPutts = null;
             h.shortPutts = null;
+            h.recordedShotResult = null;
+            h.recordedModifier = null;
+            h.recordedLaunch = '';
         });
 
         state.currentHoleIndex = 0;
@@ -347,7 +351,7 @@
 
         let hole = holesLedger[state.currentHoleIndex];
         
-        // Dynamic Live Tally Bindings (Strictly updates stroke labels)
+        // Fix: Update strokes on selection screen immediately
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
@@ -431,7 +435,7 @@
         document.getElementById('singleHoleScorecardView').classList.remove('hidden');
         
         let diff = hole.strokes - hole.par;
-        let badge = document.getElementById('ui-single-score-badge');
+        let badge = document.getElementById('ui-badge-inner');
         
         document.getElementById('ui-single-score-title').innerText = `Hole ${state.currentHoleIndex + 1} Complete!`;
         document.getElementById('ui-single-score-breakdown').innerText = `Total Score: ${hole.strokes} Strokes`;
@@ -522,7 +526,7 @@
                 <td>${h.par}</td>
                 <td style="font-weight:bold;">${h.strokes}</td>
                 <td>${h.totalPutts} (${h.shortPutts})</td>
-                <td><span class="${badgeClass}">${visualName}</span></td>
+                <td><div class="sc-badge-wrapper"><span class="${badgeClass}">${visualName}</span></div></td>
             </tr>`;
             container.innerHTML += row;
         });
@@ -589,6 +593,8 @@
             
             if (skippedChipping) {
                 hole.zone = 'putt';
+            } else if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
+                hole.zone = 'chip';
             } else {
                 hole.zone = 'approach';
             }
@@ -635,7 +641,7 @@
 
         if (skippedChipping) {
             hole.zone = 'putt';
-        } else if (hole.remainingYardage <= 35) {
+        } else if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
             hole.zone = 'chip';
         } else {
             hole.zone = 'approach';
@@ -648,7 +654,7 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        // SKIP CHIPPING ENGINE: Bypasses the chip station and zeroes out remaining numbers
+        // True Skipping Pipeline: Checks if yardage threshold drops to zero
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || hole.par === 3)) {
             hole.remainingYardage = 0;
             hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 

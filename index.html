@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mark's Golf Sim Tracker</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-panel: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent-blue: #0A84FF; /* Deep Blue for Tee */
+            --accent-green: #30D158; /* Forest Green for Approach */
+            --border-color: #333333;
+            --danger: #FF453A;
+            --warning: #FF9F0A;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background-color: var(--bg-dark); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
+        
+        /* Global Header */
+        .global-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: var(--bg-panel); padding: 15px; border-radius: 12px; margin-bottom: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid var(--border-color);
+        }
+        
+        .progress-bar {
+            width: 80px; height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden;
+        }
+        .progress-fill { height: 100%; background-color: var(--accent-blue); transition: width 0.3s ease; }
+        
+        /* Dashboard */
+        .dashboard { text-align: center; margin-top: 50px; }
+        .dashboard h1 { margin-bottom: 10px; font-size: 28px; }
+        .dashboard p { color: var(--text-muted); margin-bottom: 40px; }
+        
+        /* Game UI */
+        .card { background-color: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+        .hole-header { text-align: center; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
+        .target-banner { 
+            text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; 
+            background-color: rgba(255, 255, 255, 0.1); 
+        }
+        
+        /* Forms & Inputs */
+        label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 8px; margin-top: 15px; }
+        select, input[type="number"] {
+            width: 100%; padding: 16px; background-color: var(--bg-dark); color: white;
+            border: 1px solid var(--border-color); border-radius: 12px; font-size: 16px; appearance: none;
+        }
+        
+        /* Buttons */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .btn {
+            padding: 16px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color);
+            border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn:active { opacity: 0.7; }
+        .btn.selected { background-color: var(--text-main); color: var(--bg-dark); }
+        
+        .btn-primary { background-color: var(--accent-blue); color: white; width: 100%; margin-top: 10px; border: none; }
+        .btn-primary.green { background-color: var(--accent-green); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); width: 100%; margin-top: 10px; }
+        
+        /* Conditional Modifiers */
+        #modifiers-section { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        
+        /* Footer sticky */
+        .sticky-footer {
+            position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
+            padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;
+            max-width: 500px; margin: 0 auto;
+        }
+
+        /* Themes */
+        body.theme-tee .progress-fill { background-color: var(--accent-blue); }
+        body.theme-tee .hole-header { color: var(--accent-blue); }
+        body.theme-approach .progress-fill { background-color: var(--accent-green); }
+        body.theme-approach .hole-header { color: var(--accent-green); }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView" class="dashboard">
+        <h1>Sim Tracker</h1>
+        <p>Phase 1: Tee & Approach</p>
+        <button class="btn btn-primary" onclick="startRound()" style="padding: 20px; font-size: 20px;">Start New Round</button>
+    </div>
+
+    <!-- ACTIVE HOLE VIEW -->
+    <div id="activeView" class="hidden">
+        <div class="global-header">
+            <span id="ui-strokes">Strokes: 0</span>
+            <span id="ui-hole-counter">Hole 1 of 6</span>
+            <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
+        </div>
+
+        <div class="card">
+            <div class="hole-header" id="ui-hole-title">Hole 1 | Par 4 | 400 Yds</div>
+            <div class="target-banner" id="ui-target-banner">Target: 400 Yards to Pin</div>
+
+            <label>Select Club</label>
+            <select id="input-club">
+                <option value="250">Dr (3H) - 250y</option>
+                <option value="205">3H - 205y</option>
+                <option value="195">4H - 195y</option>
+                <option value="180">5i - 180y</option>
+                <option value="165">6i - 165y</option>
+                <option value="155">7i - 155y</option>
+                <option value="145">8i - 145y</option>
+                <option value="135">9i - 135y</option>
+                <option value="125">PW - 125y</option>
+                <option value="115">GW - 115y</option>
+            </select>
+
+            <label>Shot Result</label>
+            <div class="btn-grid">
+                <button class="btn shot-btn" onclick="selectResult(this, 'On Target')">On Target</button>
+                <button class="btn shot-btn" onclick="selectResult(this, 'Slightly Off')">Slightly Off</button>
+                <button class="btn shot-btn" onclick="selectResult(this, 'Way Off')">Way Off</button>
+                <button class="btn shot-btn" onclick="selectResult(this, 'Mishit')">Mishit</button>
+            </div>
+
+            <div id="modifiers-section">
+                <label>Miss Direction</label>
+                <div class="btn-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <button class="btn mod-btn" onclick="selectModifier(this, 'Rt')">Rt</button>
+                    <button class="btn mod-btn" onclick="selectModifier(this, 'Lt')">Lt</button>
+                    <button class="btn mod-btn" onclick="selectModifier(this, 'Sh')">Sh</button>
+                    <button class="btn mod-btn" onclick="selectModifier(this, 'Lg')">Lg</button>
+                </div>
+            </div>
+
+            <label>MLM Launch Angle (°)</label>
+            <input type="number" id="input-launch" placeholder="e.g. 22" inputmode="decimal">
+        </div>
+        
+        <div style="height: 120px;"></div> <!-- Spacer for sticky footer -->
+        
+        <div class="sticky-footer">
+            <button class="btn btn-primary" id="btn-next-hole" onclick="processShot('next')">Go to Next Hole</button>
+            <button class="btn btn-outline" id="btn-continue-hole" onclick="processShot('continue')">Continue Playing Hole</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let state = {
+        holes: [
+            { par: 4, type: "Par 4" },
+            { par: 3, type: "Par 3" },
+            { par: 5, type: "Par 5" },
+            { par: 4, type: "Par 4" },
+            { par: 3, type: "Par 3" },
+            { par: 4, type: "Par 4" }
+        ],
+        currentHoleIndex: 0,
+        currentStrokes: 0,
+        remainingYardage: 0,
+        selectedResult: null,
+        selectedModifier: null
+    };
+
+    // --- RANDOMIZATION ENGINE ---
+    function getRandomYardage(par) {
+        if (par === 3) return Math.floor(Math.random() * (180 - 120 + 1)) + 120;
+        if (par === 4) return Math.floor(Math.random() * (440 - 340 + 1)) + 340;
+        if (par === 5) return Math.floor(Math.random() * (540 - 470 + 1)) + 470;
+    }
+
+    // --- UI CONTROLLERS ---
+    function startRound() {
+        document.getElementById('dashboardView').classList.add('hidden');
+        document.getElementById('activeView').classList.remove('hidden');
+        
+        // Generate random yardages for the 6 holes
+        state.holes.forEach(hole => { hole.startYardage = getRandomYardage(hole.par); });
+        
+        state.currentHoleIndex = 0;
+        loadHole();
+    }
+
+    function loadHole() {
+        state.currentStrokes = 0;
+        const hole = state.holes[state.currentHoleIndex];
+        state.remainingYardage = hole.startYardage;
+        updateUI();
+    }
+
+    function selectResult(btn, result) {
+        document.querySelectorAll('.shot-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.selectedResult = result;
+
+        const modSection = document.getElementById('modifiers-section');
+        if (result === 'Slightly Off' || result === 'Way Off' || result === 'Mishit') {
+            modSection.style.display = 'block';
+        } else {
+            modSection.style.display = 'none';
+            state.selectedModifier = null;
+            document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('selected'));
+        }
+    }
+
+    function selectModifier(btn, mod) {
+        document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.selectedModifier = mod;
+    }
+
+    function updateUI() {
+        const hole = state.holes[state.currentHoleIndex];
+        
+        // Header
+        document.getElementById('ui-strokes').innerText = `Strokes: ${state.currentStrokes}`;
+        document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
+        document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
+        
+        // Hole Data
+        document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
+        
+        let targetText = `Remaining: ${state.remainingYardage} Yards to Pin`;
+        if (state.currentStrokes === 0 && hole.par !== 3) {
+            targetText = `Fairway Target: ${state.remainingYardage} Yards`;
+        }
+        document.getElementById('ui-target-banner').innerText = targetText;
+
+        // Theme switching
+        if (state.currentStrokes === 0) {
+            document.body.className = 'theme-tee';
+        } else {
+            document.body.className = 'theme-approach';
+            document.getElementById('ui-target-banner').style.backgroundColor = 'var(--accent-green)';
+            document.getElementById('ui-target-banner').style.color = 'white';
+        }
+
+        // Reset Inputs
+        state.selectedResult = null;
+        state.selectedModifier = null;
+        document.getElementById('input-launch').value = '';
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('modifiers-section').style.display = 'none';
+    }
+
+    // --- MATH ENGINE & SUBMISSION ---
+    function processShot(route) {
+        if (!state.selectedResult) {
+            alert("Please select a shot result before continuing.");
+            return;
+        }
+
+        const clubDistance = parseInt(document.getElementById('input-club').value);
+        let penalty = 0;
+
+        if (state.selectedResult === 'On Target') {
+            state.remainingYardage -= clubDistance;
+        } else if (state.selectedResult === 'Slightly Off') {
+            penalty = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+            state.remainingYardage = (state.remainingYardage - clubDistance) + penalty;
+        } else if (state.selectedResult === 'Way Off') {
+            penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+            state.remainingYardage = (state.remainingYardage - clubDistance) + penalty;
+        } else if (state.selectedResult === 'Mishit') {
+            // Remaining yardage stays the same, stroke added
+            alert("Mishit! Take a +1 penalty stroke and hit from the same spot.");
+            state.currentStrokes++; // Extra penalty stroke
+        }
+
+        // Prevent negative yardage
+        if (state.remainingYardage < 0) state.remainingYardage = 0;
+        
+        state.currentStrokes++;
+
+        if (route === 'next') {
+            if (state.currentHoleIndex < 5) {
+                state.currentHoleIndex++;
+                loadHole();
+            } else {
+                alert("Round Complete! (Dashboard save coming in Phase 2)");
+                location.reload();
+            }
+        } else if (route === 'continue') {
+            if (state.remainingYardage <= 35) {
+                alert(`Transitioning to Chipping Zone (Phase 2)\nRemaining Yardage: ${state.remainingYardage} yds`);
+                // Placeholder for Phase 2 integration
+                location.reload();
+            } else {
+                updateUI();
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

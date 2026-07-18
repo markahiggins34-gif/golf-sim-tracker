@@ -56,6 +56,13 @@
             background-color: rgba(255, 255, 255, 0.1); font-size: 16px;
         }
         
+        /* ENLARGED REMAINING TEXT FOR APPROACH SHOTS */
+        body.theme-approach .target-banner {
+            font-size: 28px !important;
+            padding: 15px 10px;
+            line-height: 1.2;
+        }
+        
         /* Giant Display text for Short Game */
         .giant-target-text { font-size: 54px; font-weight: 900; text-align: center; color: var(--accent-yellow); margin: 5px 0; line-height: 1; text-transform: uppercase; }
         .mental-cue { text-align: center; font-size: 13px; color: var(--text-muted); font-style: italic; margin-bottom: 15px; padding: 0 10px; }
@@ -75,7 +82,7 @@
         .btn:active { opacity: 0.7; }
         .btn.selected { background-color: var(--accent-yellow); color: #000000; border-color: var(--accent-yellow); }
         
-        /* Sticky Footer Layout Fixes */
+        /* Compact Sticky Footer */
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
             padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;
@@ -147,7 +154,7 @@
             <div class="target-banner" id="ui-target-banner">Target: 400 Yards to Pin</div>
 
             <label>Select Club</label>
-            <select id="input-club">
+            <select id="input-club" onchange="updateLiveCalculation()">
                 <option value="250">Dr (3H) - 250y</option>
                 <option value="205">3H - 205y</option>
                 <option value="195">4H - 195y</option>
@@ -186,14 +193,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ[cite: 1]</option>
-                <option value="58">58° Mack Daddy[cite: 1]</option>
-                <option value="AW">AW[cite: 1]</option>
-                <option value="PW">PW[cite: 1]</option>
+                <option value="56">56° Cleveland RTZ</option>
+                <option value="58">58° Mack Daddy</option>
+                <option value="AW">AW</option>
+                <option value="PW">PW</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -204,17 +211,17 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?[cite: 1]</label>
+            <label>How Many Putts Were Left Short?</label>
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -340,7 +347,7 @@
 
         let hole = holesLedger[state.currentHoleIndex];
         
-        // Dynamic Live Tally Bindings (Strokes display properly across shots)
+        // Dynamic Live Tally Bindings (Strictly updates stroke labels)
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
@@ -520,7 +527,6 @@
             container.innerHTML += row;
         });
 
-        // Appending Total Row elements dynamically
         let totalDiff = totalStrokes - totalPar;
         let totalSign = totalDiff > 0 ? `+${totalDiff}` : totalDiff === 0 ? "E" : totalDiff;
         
@@ -642,7 +648,7 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        // Skip Chipping Flag for Clean Target Greens
+        // SKIP CHIPPING ENGINE: Bypasses the chip station and zeroes out remaining numbers
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || hole.par === 3)) {
             hole.remainingYardage = 0;
             hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
@@ -663,11 +669,6 @@
         }
 
         if (hole.remainingYardage < 0) hole.remainingYardage = 0;
-        
-        // Late evaluation check to drop into chipping bounds safely on regular continuing shots
-        if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
-            return false;
-        }
         return false;
     }
 

@@ -6,8 +6,10 @@
     <title>Mark's Golf Sim</title>
     <style>
         :root {
-            /* Masters Theme (Tee & Approach) */
-            --bg-dark: #0b4524; 
+            /* Distinct Full Swing States */
+            --bg-tee: #072f18;       /* Very Deep Dark Green for Tee */
+            --bg-approach: #0b4524;  /* Classic Masters Green for Approach */
+            
             --bg-panel: #115c32; 
             --text-main: #ffffff;
             --text-muted: #b3d9c3; 
@@ -30,7 +32,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease; }
+        body { background-color: var(--bg-tee); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; padding-bottom: 140px; }
         
         /* Global Header */
@@ -103,6 +105,8 @@
         .sc-par { font-weight: bold; color: #111; }
 
         /* Theme Engine State Overrides */
+        body.theme-tee { background-color: var(--bg-tee); }
+        body.theme-approach { background-color: var(--bg-approach); }
         body.theme-approach .target-banner { background-color: #ffffff; color: #000000; }
         
         body.theme-chip { background-color: var(--bg-chip); }
@@ -181,14 +185,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ[cite: 1]</option>
-                <option value="58">58° Mack Daddy[cite: 1]</option>
-                <option value="AW">AW[cite: 1]</option>
-                <option value="PW">PW[cite: 1]</option>
+                <option value="56">56° Cleveland RTZ</option>
+                <option value="58">58° Mack Daddy</option>
+                <option value="AW">AW</option>
+                <option value="PW">PW</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -199,17 +203,17 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?[cite: 1]</label>
+            <label>How Many Putts Were Left Short?</label>
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -232,7 +236,6 @@
                     </tr>
                 </thead>
                 <tbody id="scorecard-rows">
-                    <!-- Dynamic script entry generation node -->
                 </tbody>
             </table>
             <div style="margin-top:20px; text-align:center;">
@@ -298,7 +301,6 @@
     }
 
     function syncHoleView() {
-        // Evaluate if entire tournament cycle loop ledger registers complete
         let allComplete = holesLedger.every(h => h.complete);
         if (allComplete) {
             renderFinalScorecard();
@@ -334,8 +336,6 @@
                 document.getElementById('ui-target-banner').innerText = hole.par === 3 ? `Green Target: ${hole.remainingYardage} Yards` : `Fairway Target: ${hole.remainingYardage} Yards`;
             } else {
                 document.body.className = 'theme-approach';
-                document.getElementById('ui-target-banner').style.backgroundColor = '#ffffff';
-                document.getElementById('ui-target-banner').style.color = '#000000';
                 document.getElementById('ui-target-banner').innerText = `Remaining: ${hole.remainingYardage} Yards to Pin`;
             }
 
@@ -460,11 +460,10 @@
             if (!hole.recordedShotResult) return alert("Please log shot result.");
             takeSnapshot();
             
-            let skippedChipping = executeCalculations(hole);
             hole.strokes++;
+            let skippedChipping = executeCalculations(hole);
             
             if (skippedChipping) {
-                // Par 3 On Target route condition shortcut achieved
                 hole.zone = 'putt';
             } else {
                 hole.zone = 'approach';
@@ -506,8 +505,8 @@
         if (!hole.recordedShotResult) return alert("Please log shot result.");
         
         takeSnapshot();
-        let skippedChipping = executeCalculations(hole);
         hole.strokes++;
+        let skippedChipping = executeCalculations(hole);
 
         if (skippedChipping) {
             hole.zone = 'putt';
@@ -524,10 +523,10 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        // PAR 3 SHORTCUT NODE FILTER EXECUTION
+        // PAR 3 GREEN SHORTCUT IMPLEMENTATION WITH FIXED RANDOMIZED PACES
         if (hole.par === 3 && hole.zone === 'tee' && hole.recordedShotResult === 'On Target') {
             hole.remainingYardage = 0;
-            hole.paces = 7; // Places default inside green mat boundary parameters
+            hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; // Fixed: Randomizes paces away between 2 and 7 on target
             return true; 
         }
 
@@ -549,7 +548,9 @@
     }
 
     function incrementHoleIndex() {
-        // Evaluate the circular array for incomplete ledger steps
+        let allComplete = holesLedger.every(h => h.complete);
+        if (allComplete) return;
+
         let scannedIndex = state.currentHoleIndex;
         for (let i = 0; i < 6; i++) {
             scannedIndex = (scannedIndex + 1) % 6;
@@ -558,7 +559,6 @@
                 return;
             }
         }
-        // If all matching structures check out true, final engine auto registers summary
     }
 
     function handleBack() {

@@ -7,9 +7,9 @@
     <style>
         :root {
             /* HIGH CONTRAST DARK MODE THEMES */
-            --bg-tee: #04140b;       /* Ultra-Deep Forest charcoal (Tee Box) */
-            --bg-approach: #13753c;  /* Bright High-Contrast Lawn Green (Approach) */
-            --bg-panel: #0b3a1d; 
+            --bg-tee: #04140b;       /* Deep Charcoal Green (Tee Box) */
+            --bg-approach: #115c32;  /* Vibrant Lawn Green (Approach Zone) */
+            --bg-panel: #164627; 
             --text-main: #ffffff;
             --text-muted: #b3d9c3; 
             --accent-yellow: #FFD520; 
@@ -75,7 +75,7 @@
         .btn:active { opacity: 0.7; }
         .btn.selected { background-color: var(--accent-yellow); color: #000000; border-color: var(--accent-yellow); }
         
-        /* Micro Sticky Footer Layout Fixes */
+        /* Sticky Footer Layout Fixes */
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
             padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;
@@ -90,11 +90,12 @@
 
         #modifiers-section { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-        /* Scorecard Visual Layout Matrix */
+        /* Scorecard Layout Matrix */
         .scorecard-view { background-color: var(--bg-score); color: var(--text-score); padding: 20px 15px; border-radius: 16px; }
         .scorecard-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
         .scorecard-table th, .scorecard-table td { padding: 10px 6px; text-align: center; border: 1px solid #ddd; font-size: 14px; }
         .scorecard-table th { background-color: #0b4524; color: white; }
+        .scorecard-table tr.total-row { background-color: #eaeaea; font-weight: bold; border-top: 2px solid #222; }
         
         .sc-badge { display: inline-flex; justify-content: center; align-items: center; width: 32px; height: 32px; font-weight: bold; font-size: 14px; }
         .sc-circle { border: 2px solid #0b4524; border-radius: 50%; color: #0b4524; }
@@ -106,7 +107,7 @@
         /* Theme Engine State Overrides */
         body.theme-tee { background-color: var(--bg-tee); }
         body.theme-approach { background-color: var(--bg-approach); }
-        body.theme-approach .global-header, body.theme-approach .card, body.theme-approach .sticky-footer { background-color: #0c2b18; border-color: #174e2a; }
+        body.theme-approach .global-header, body.theme-approach .card, body.theme-approach .sticky-footer { background-color: rgba(11, 58, 29, 0.85); border-color: #174e2a; }
         body.theme-approach .target-banner { background-color: #ffffff; color: #000000; }
         
         body.theme-chip { background-color: var(--bg-chip); }
@@ -185,14 +186,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ</option>
-                <option value="58">58° Mack Daddy</option>
-                <option value="AW">AW</option>
-                <option value="PW">PW</option>
+                <option value="56">56° Cleveland RTZ[cite: 1]</option>
+                <option value="58">58° Mack Daddy[cite: 1]</option>
+                <option value="AW">AW[cite: 1]</option>
+                <option value="PW">PW[cite: 1]</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -203,17 +204,17 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?</label>
+            <label>How Many Putts Were Left Short?[cite: 1]</label>
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -251,6 +252,10 @@
                 </thead>
                 <tbody id="scorecard-rows">
                 </tbody>
+                <tfoot>
+                    <tr class="total-row" id="scorecard-total-row">
+                    </tr>
+                </tfoot>
             </table>
             <div style="margin-top:20px; text-align:center;">
                 <button class="btn btn-action" onclick="resetRound();" style="width:80%; padding: 14px;">Restart Sim Loop</button>
@@ -276,7 +281,7 @@
     let state = {
         currentHoleIndex: 0,
         historyStack: [],
-        routingChoice: 'tee' // Traverses track paths dynamically
+        routingChoice: 'tee' 
     };
 
     let holesLedger = [
@@ -335,6 +340,7 @@
 
         let hole = holesLedger[state.currentHoleIndex];
         
+        // Dynamic Live Tally Bindings (Strokes display properly across shots)
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
@@ -424,7 +430,6 @@
         document.getElementById('ui-single-score-breakdown').innerText = `Total Score: ${hole.strokes} Strokes`;
         document.getElementById('ui-single-score-sub').innerText = `Par ${hole.par} | ${hole.totalPutts} Putts (${hole.shortPutts} Short)`;
 
-        // Check if next incomplete hole has pre-existing chip data to control the Putt navigation routing button view layout
         let nextIncIdx = getNextIncompleteIndex();
         let nextHoleBtn = document.getElementById('btn-next-putt-route');
         if (nextIncIdx !== null && holesLedger[nextIncIdx].zone === 'putt') {
@@ -448,17 +453,12 @@
 
     function advanceHole(routeMethod) {
         let hole = holesLedger[state.currentHoleIndex];
-        hole.complete = true; // Final secure locking execution block frame
+        hole.complete = true; 
         state.routingChoice = routeMethod;
         
         let nextIndex = getNextIncompleteIndex();
         if (nextIndex !== null) {
             state.currentHoleIndex = nextIndex;
-            if (routeMethod === 'putt' && holesLedger[state.currentHoleIndex].zone === 'putt') {
-                // Keep the structural pipeline tracking intact
-            } else if (holesLedger[state.currentHoleIndex].zone === 'singleScorecard' || holesLedger[state.currentHoleIndex].complete) {
-                // Safeguard boundaries
-            }
             syncHoleView();
         } else {
             renderFinalScorecard();
@@ -489,7 +489,17 @@
         let container = document.getElementById('scorecard-rows');
         container.innerHTML = '';
         
+        let totalPar = 0;
+        let totalStrokes = 0;
+        let totalPutts = 0;
+        let totalShortPutts = 0;
+
         holesLedger.forEach((h, idx) => {
+            totalPar += h.par;
+            totalStrokes += h.strokes;
+            totalPutts += h.totalPutts || 0;
+            totalShortPutts += h.shortPutts || 0;
+
             let diff = h.strokes - h.par;
             let badgeClass = "sc-badge sc-par";
             let visualName = "PAR";
@@ -509,6 +519,18 @@
             </tr>`;
             container.innerHTML += row;
         });
+
+        // Appending Total Row elements dynamically
+        let totalDiff = totalStrokes - totalPar;
+        let totalSign = totalDiff > 0 ? `+${totalDiff}` : totalDiff === 0 ? "E" : totalDiff;
+        
+        document.getElementById('scorecard-total-row').innerHTML = `
+            <td>TOT</td>
+            <td>${totalPar}</td>
+            <td style="font-weight:900; color:#0b4524;">${totalStrokes}</td>
+            <td>${totalPutts} (${totalShortPutts})</td>
+            <td style="font-weight:bold;">${totalSign}</td>
+        `;
 
         document.getElementById('scorecardModule').classList.remove('hidden');
     }
@@ -556,7 +578,7 @@
             if (!hole.recordedShotResult) return alert("Please log shot result.");
             takeSnapshot();
             
-            hole.strokes++; // Explicitly incrementing the real stroke state variable
+            hole.strokes++; 
             let skippedChipping = executeCalculations(hole);
             
             if (skippedChipping) {
@@ -565,7 +587,6 @@
                 hole.zone = 'approach';
             }
             
-            // Auto loop transition sequencing configuration mapping node
             let nextIndex = getNextIncompleteIndex();
             if (nextIndex !== null) {
                 state.currentHoleIndex = nextIndex;
@@ -581,7 +602,7 @@
             hole.strokes++;
 
             if (hole.paces > 7) {
-                alert(`You are ${hole.paces} paces away (outside the 7 pace mat zone). Resetting to chip station!`);
+                alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
                 hole.remainingYardage = hole.paces; 
             } else {
                 hole.zone = 'putt';
@@ -592,7 +613,7 @@
             if (hole.totalPutts === null || hole.shortPutts === null) return alert("Please answer both putting questions.");
             takeSnapshot();
             
-            hole.strokes += hole.totalPutts; // Accurately counts final putts
+            hole.strokes += hole.totalPutts; 
             hole.zone = 'singleScorecard';
             syncHoleView();
         }
@@ -621,9 +642,9 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        if (hole.par === 3 && hole.zone === 'tee' && hole.recordedShotResult === 'On Target') {
+        // Skip Chipping Flag for Clean Target Greens
+        if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || hole.par === 3)) {
             hole.remainingYardage = 0;
-            // Fixed: Randomizes paces away between 2 and 7 (never 0)
             hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
             return true; 
         }
@@ -634,17 +655,19 @@
             let penalty = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
         } else if (hole.recordedShotResult === 'Way Off') {
-            // Highly penalizing math logic mapping matrix calculation
             let penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
-            hole.remainingYardage = (state.routingChoice === 'putt') 
-                ? (hole.remainingYardage - clubDistance) + penalty + 15
-                : (hole.remainingYardage - clubDistance) + penalty;
+            hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
         } else if (hole.recordedShotResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke. Ball remains at current spot.");
             hole.strokes++; 
         }
 
         if (hole.remainingYardage < 0) hole.remainingYardage = 0;
+        
+        // Late evaluation check to drop into chipping bounds safely on regular continuing shots
+        if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
+            return false;
+        }
         return false;
     }
 

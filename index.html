@@ -36,11 +36,11 @@
         /* Global Header */
         .global-header {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--bg-panel); padding: 12px; border-radius: 12px; margin-bottom: 15px;
+            background-color: var(--bg-panel); padding: 10px; border-radius: 12px; margin-bottom: 15px;
             font-size: 14px; font-weight: 600; border: 1px solid var(--border-color);
         }
         .progress-bar { width: 70px; height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background-color: var(--accent-yellow); width: 0%; transition: width 0.3s ease; }
+        .progress-fill { height: 100%; background-color: var(--accent-yellow); width: 16.6%; transition: width 0.3s ease; }
         
         /* Dashboard */
         .dashboard { text-align: center; margin-top: 50px; }
@@ -71,32 +71,36 @@
             padding: 12px; background-color: rgba(0,0,0,0.25); color: white; border: 1px solid var(--border-color);
             border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.1s;
         }
+        .btn:active { opacity: 0.7; }
         .btn.selected { background-color: var(--accent-yellow); color: #000000; border-color: var(--accent-yellow); }
         
-        /* Compact Footers & Navigation */
+        /* Micro Sticky Footer Layout Fixes */
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
-            padding: 10px 15px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;
+            padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;
             max-width: 500px; margin: 0 auto; z-index: 100;
         }
-        .footer-row { display: flex; gap: 8px; width: 100%; }
-        .footer-row .btn { flex: 1; padding: 10px; font-size: 14px; } /* Smaller sizing */
+        .footer-row { display: flex; gap: 6px; width: 100%; }
+        .footer-row .btn { flex: 1; padding: 8px 10px; font-size: 13px; border-radius: 8px; } 
         
         .btn-action { background-color: var(--accent-yellow); color: #000000; border: none; font-weight: 700; }
         .btn-outline { background-color: transparent; border: 1px solid var(--accent-yellow); color: var(--accent-yellow); }
-        .btn-back { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); background-color: transparent; }
+        .btn-back { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.6); background-color: transparent; }
 
         #modifiers-section { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-        /* Scorecard Shapes CSS */
-        .scorecard-view { background-color: var(--bg-score); color: var(--text-score); padding: 30px 20px; text-align: center; border-radius: 16px; }
-        .score-badge-container { display: flex; justify-content: center; align-items: center; margin: 20px 0; }
+        /* Scorecard Visual Layout Matrix */
+        .scorecard-view { background-color: var(--bg-score); color: var(--text-score); padding: 20px 15px; border-radius: 16px; }
+        .scorecard-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
+        .scorecard-table th, .scorecard-table td { padding: 10px 6px; text-align: center; border: 1px solid #ddd; font-size: 14px; }
+        .scorecard-table th { background-color: #0b4524; color: white; }
         
-        .shape-none { font-size: 48px; font-weight: 800; padding: 10px 20px; }
-        .shape-circle { width: 100px; height: 100px; border: 4px solid #0b4524; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: 800; }
-        .shape-dcircle { width: 100px; height: 100px; border: 4px solid #0b4524; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: 800; box-shadow: 0 0 0 4px #0b4524; margin: 4px; }
-        .shape-square { width: 100px; height: 100px; border: 4px solid #cc0000; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: 800; }
-        .shape-dsquare { width: 100px; height: 100px; border: 4px solid #cc0000; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: 800; box-shadow: 0 0 0 4px #cc0000; margin: 4px; }
+        .sc-badge { display: inline-flex; justify-content: center; align-items: center; width: 32px; height: 32px; font-weight: bold; font-size: 14px; }
+        .sc-circle { border: 2px solid #0b4524; border-radius: 50%; color: #0b4524; }
+        .sc-dcircle { border: 2px solid #0b4524; border-radius: 50%; color: #0b4524; box-shadow: 0 0 0 2px #0b4524; }
+        .sc-square { border: 2px solid #cc0000; color: #cc0000; }
+        .sc-dsquare { border: 2px solid #cc0000; color: #cc0000; box-shadow: 0 0 0 2px #cc0000; }
+        .sc-par { font-weight: bold; color: #111; }
 
         /* Theme Engine State Overrides */
         body.theme-approach .target-banner { background-color: #ffffff; color: #000000; }
@@ -134,7 +138,7 @@
 
         <!-- ZONE 1 & 2: FULL SWING (TEE & APPROACH) -->
         <div id="fullSwingModule" class="card">
-            <div class="hole-header" id="ui-hole-title">Hole 1 | Par 4 | 400 Yds</div>
+            <div class="hole-header" id="ui-hole-title">Hole 1 | Par 4</div>
             <div class="target-banner" id="ui-target-banner">Target: 400 Yards to Pin</div>
 
             <label>Select Club</label>
@@ -177,14 +181,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip way down.</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ</option>
-                <option value="58">58° Mack Daddy</option>
-                <option value="AW">AW</option>
-                <option value="PW">PW</option>
+                <option value="56">56° Cleveland RTZ[cite: 1]</option>
+                <option value="58">58° Mack Daddy[cite: 1]</option>
+                <option value="AW">AW[cite: 1]</option>
+                <option value="PW">PW[cite: 1]</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -195,17 +199,17 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?</label>
+            <label>How Many Putts Were Left Short?[cite: 1]</label>
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -214,23 +218,35 @@
             </div>
         </div>
 
-        <!-- ZONE 5: HOLE SCORECARD SUMMARY -->
+        <!-- ZONE 5: DYNAMIC TOURNAMENT ROUND SCORECARD SUMMARY -->
         <div id="scorecardModule" class="scorecard-view hidden">
-            <h2 id="ui-score-msg">Hole Complete!</h2>
-            <div class="score-badge-container">
-                <div id="ui-score-badge" class="shape-none">PAR</div>
+            <h2 style="text-align: center; color: #0b4524; font-weight: 800;">Round Complete Card</h2>
+            <table class="scorecard-table">
+                <thead>
+                    <tr>
+                        <th>Hole</th>
+                        <th>Par</th>
+                        <th>Score</th>
+                        <th>Putts (Short)</th>
+                        <th>Shape</th>
+                    </tr>
+                </thead>
+                <tbody id="scorecard-rows">
+                    <!-- Dynamic script entry generation node -->
+                </tbody>
+            </table>
+            <div style="margin-top:20px; text-align:center;">
+                <button class="btn btn-action" onclick="location.reload();" style="width:80%;">Restart Sim Loop</button>
             </div>
-            <h3 id="ui-score-breakdown" style="font-weight: 600; margin-bottom: 5px;">Total Score: 4</h3>
-            <p id="ui-score-par-comparison" style="color: #666; font-size: 14px;"></p>
         </div>
 
-        <!-- COMPACT SINGLE-THUMB FOOTER -->
-        <div class="sticky-footer">
+        <!-- COMPACT MICRO-FOOTER NAVIGATION INTERFACE -->
+        <div class="sticky-footer" id="ui-footer-container">
             <div class="footer-row" id="ui-footer-primary-actions">
                 <button class="btn btn-action" id="btn-main-action" onclick="handleSubmit()">Go to Next Hole</button>
                 <button class="btn btn-outline" id="btn-sub-action" onclick="handleContinue()">Continue Playing Hole</button>
             </div>
-            <div class="footer-row">
+            <div class="footer-row" id="ui-footer-back-action">
                 <button class="btn btn-back" onclick="handleBack()">Back (Undo Shot)</button>
             </div>
         </div>
@@ -242,10 +258,9 @@
     // --- APP ARCHITECTURE ENGINE ---
     let state = {
         currentHoleIndex: 0,
-        historyStack: [] // Deep state snapshot stack for perfect multi-screen backing up
+        historyStack: [] 
     };
 
-    // The persistent database driving all 6 holes simultaneously 
     let holesLedger = [
         { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
         { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
@@ -265,7 +280,6 @@
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('gameView').classList.remove('hidden');
         
-        // Populate random yardage maps
         holesLedger.forEach(h => {
             h.startYardage = getRandomYardage(h.par);
             h.remainingYardage = h.startYardage;
@@ -276,7 +290,6 @@
         syncHoleView();
     }
 
-    // --- TIME MACHINE ENGINE (CAPTURE STATE SNAPSHOT) ---
     function takeSnapshot() {
         state.historyStack.push({
             currentHoleIndex: state.currentHoleIndex,
@@ -284,31 +297,33 @@
         });
     }
 
-    // --- UI VIEW ROUTER & SYNCRONIZER ---
     function syncHoleView() {
+        // Evaluate if entire tournament cycle loop ledger registers complete
+        let allComplete = holesLedger.every(h => h.complete);
+        if (allComplete) {
+            renderFinalScorecard();
+            return;
+        }
+
         let hole = holesLedger[state.currentHoleIndex];
         
-        // 1. Refresh Dynamic Header Context indicators
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
 
-        // Hide all major functional sub-modules 
         document.getElementById('fullSwingModule').classList.add('hidden');
         document.getElementById('chippingModule').classList.add('hidden');
         document.getElementById('puttingModule').classList.add('hidden');
         document.getElementById('scorecardModule').classList.add('hidden');
+        document.getElementById('ui-global-header').classList.remove('hidden');
+        document.getElementById('ui-footer-container').classList.remove('hidden');
         document.getElementById('ui-footer-primary-actions').classList.remove('hidden');
 
-        // Reset dynamic button text configs
         document.getElementById('btn-main-action').innerText = "Go to Next Hole";
         document.getElementById('btn-main-action').className = "btn btn-action";
         document.getElementById('btn-sub-action').classList.remove('hidden');
 
-        // 2. Structural Router based on current active hole zone status
-        if (hole.complete) {
-            renderScorecard(hole);
-        } else if (hole.zone === 'tee' || hole.zone === 'approach') {
+        if (hole.zone === 'tee' || hole.zone === 'approach') {
             document.getElementById('fullSwingModule').classList.remove('hidden');
             document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
             
@@ -324,7 +339,6 @@
                 document.getElementById('ui-target-banner').innerText = `Remaining: ${hole.remainingYardage} Yards to Pin`;
             }
 
-            // Restore elements mapped to input elements
             document.getElementById('input-club').value = hole.recordedClub || "250";
             document.getElementById('input-launch').value = hole.recordedLaunch || '';
             
@@ -347,7 +361,7 @@
             document.getElementById('chippingModule').classList.remove('hidden');
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
             document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Green";
-            document.getElementById('btn-sub-action').classList.add('hidden'); // Short-game uses direct logic execution path
+            document.getElementById('btn-sub-action').classList.add('hidden'); 
             
             document.getElementById('input-chip-paces').value = hole.paces || '';
 
@@ -355,7 +369,7 @@
             document.body.className = 'theme-putt';
             document.getElementById('puttingModule').classList.remove('hidden');
             document.getElementById('ui-putt-paces').innerText = `${hole.paces} PACES`;
-            document.getElementById('btn-main-action').innerText = "Calculate Score";
+            document.getElementById('btn-main-action').innerText = "Finish Hole & Tally";
             document.getElementById('btn-sub-action').classList.add('hidden');
 
             document.querySelectorAll('.putt-btn').forEach(b => {
@@ -367,32 +381,42 @@
         }
     }
 
-    function renderScorecard(hole) {
+    function renderFinalScorecard() {
         document.body.className = '';
-        document.getElementById('scorecardModule').classList.remove('hidden');
-        document.getElementById('ui-sub-action').classList.add('hidden');
-        document.getElementById('btn-main-action').innerText = "Continue Next Station";
+        document.getElementById('ui-global-header').classList.add('hidden');
+        document.getElementById('ui-footer-container').classList.add('hidden');
         
-        let diff = hole.strokes - hole.par;
-        let badge = document.getElementById('ui-score-badge');
+        document.getElementById('fullSwingModule').classList.add('hidden');
+        document.getElementById('chippingModule').classList.add('hidden');
+        document.getElementById('puttingModule').classList.add('hidden');
         
-        document.getElementById('ui-score-breakdown').innerText = `Total Score: ${hole.strokes} Strokes`;
-        document.getElementById('ui-score-par-comparison').innerText = `Par ${hole.par} | ${hole.totalPutts} Putts (${hole.shortPutts} Short)`;
+        let container = document.getElementById('scorecard-rows');
+        container.innerHTML = '';
+        
+        holesLedger.forEach((h, idx) => {
+            let diff = h.strokes - h.par;
+            let badgeClass = "sc-badge sc-par";
+            let visualName = "PAR";
 
-        if (diff === 0) {
-            badge.className = "shape-none"; badge.innerText = "PAR";
-        } else if (diff === -1) {
-            badge.className = "shape-circle"; badge.innerText = "Birdie";
-        } else if (diff <= -2) {
-            badge.className = "shape-dcircle"; badge.innerText = "Eagle";
-        } else if (diff === 1) {
-            badge.className = "shape-square"; badge.innerText = "Bogey";
-        } else {
-            badge.className = "shape-dsquare"; badge.innerText = "D-Bogey+";
-        }
+            if (diff === 0) { badgeClass = "sc-badge sc-par"; visualName = "E"; }
+            else if (diff === -1) { badgeClass = "sc-badge sc-circle"; visualName = "-1"; }
+            else if (diff <= -2) { badgeClass = "sc-badge sc-dcircle"; visualName = "-2"; }
+            else if (diff === 1) { badgeClass = "sc-badge sc-square"; visualName = "+1"; }
+            else { badgeClass = "sc-badge sc-dsquare"; visualName = `+${diff}`; }
+
+            let row = `<tr>
+                <td>${idx + 1}</td>
+                <td>${h.par}</td>
+                <td style="font-weight:bold;">${h.strokes}</td>
+                <td>${h.totalPutts} (${h.shortPutts})</td>
+                <td><span class="${badgeClass}">${visualName}</span></td>
+            </tr>`;
+            container.innerHTML += row;
+        });
+
+        document.getElementById('scorecardModule').classList.remove('hidden');
     }
 
-    // --- BUTTON EVENT CAPTURES ---
     function selectResult(element, label) {
         let hole = holesLedger[state.currentHoleIndex];
         hole.recordedShotResult = label;
@@ -429,25 +453,23 @@
         element.classList.add('selected');
     }
 
-    // --- GAME ENGINE LOGIC COMPILERS ---
     function handleSubmit() {
         let hole = holesLedger[state.currentHoleIndex];
-
-        if (hole.complete) {
-            // Advancing past scorecard view screen module
-            incrementHoleIndex();
-            syncHoleView();
-            return;
-        }
 
         if (hole.zone === 'tee' || hole.zone === 'approach') {
             if (!hole.recordedShotResult) return alert("Please log shot result.");
             takeSnapshot();
             
-            executeCalculations(hole);
+            let skippedChipping = executeCalculations(hole);
             hole.strokes++;
             
-            // "Go to Next Hole" routing logic node path override
+            if (skippedChipping) {
+                // Par 3 On Target route condition shortcut achieved
+                hole.zone = 'putt';
+            } else {
+                hole.zone = 'approach';
+            }
+            
             incrementHoleIndex();
             syncHoleView();
 
@@ -461,7 +483,6 @@
 
             if (hole.paces > 7) {
                 alert(`You are ${hole.paces} paces away (outside the 7 pace mat zone). Resetting to chip station!`);
-                // Stays in chip zone, yardage recalculated
                 hole.remainingYardage = hole.paces; 
             } else {
                 hole.zone = 'putt';
@@ -474,6 +495,8 @@
             
             hole.strokes += hole.totalPutts;
             hole.complete = true;
+            
+            incrementHoleIndex();
             syncHoleView();
         }
     }
@@ -483,10 +506,12 @@
         if (!hole.recordedShotResult) return alert("Please log shot result.");
         
         takeSnapshot();
-        executeCalculations(hole);
+        let skippedChipping = executeCalculations(hole);
         hole.strokes++;
 
-        if (hole.remainingYardage <= 35) {
+        if (skippedChipping) {
+            hole.zone = 'putt';
+        } else if (hole.remainingYardage <= 35) {
             hole.zone = 'chip';
         } else {
             hole.zone = 'approach';
@@ -499,6 +524,13 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
+        // PAR 3 SHORTCUT NODE FILTER EXECUTION
+        if (hole.par === 3 && hole.zone === 'tee' && hole.recordedShotResult === 'On Target') {
+            hole.remainingYardage = 0;
+            hole.paces = 7; // Places default inside green mat boundary parameters
+            return true; 
+        }
+
         if (hole.recordedShotResult === 'On Target') {
             hole.remainingYardage -= clubDistance;
         } else if (hole.recordedShotResult === 'Slightly Off') {
@@ -509,21 +541,24 @@
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
         } else if (hole.recordedShotResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke. Ball remains at current spot.");
-            hole.strokes++; // Immediate penalty layout additions
+            hole.strokes++; 
         }
 
         if (hole.remainingYardage < 0) hole.remainingYardage = 0;
+        return false;
     }
 
     function incrementHoleIndex() {
-        // If at the end of the round, loop back cleanly to Hole 1 instead of crashing or ending the round!
-        if (state.currentHoleIndex < 5) {
-            state.currentHoleIndex++;
-        } else {
-            // Loop back to find first incomplete or cycle around
-            state.currentHoleIndex = 0;
-            alert("End of loop reached. Cycling back to view status of Hole 1.");
+        // Evaluate the circular array for incomplete ledger steps
+        let scannedIndex = state.currentHoleIndex;
+        for (let i = 0; i < 6; i++) {
+            scannedIndex = (scannedIndex + 1) % 6;
+            if (!holesLedger[scannedIndex].complete) {
+                state.currentHoleIndex = scannedIndex;
+                return;
+            }
         }
+        // If all matching structures check out true, final engine auto registers summary
     }
 
     function handleBack() {

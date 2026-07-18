@@ -14,14 +14,14 @@
             --accent-green: #30D158; /* Forest Green for Approach */
             --border-color: #333333;
             --danger: #FF453A;
-            --warning: #FF9F0A;
+            --warning: #FF9F0A; /* Sunset Orange */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
         body { background-color: var(--bg-dark); color: var(--text-main); -webkit-font-smoothing: antialiased; }
         
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-bottom: 180px; }
         
         /* Global Header */
         .global-header {
@@ -45,7 +45,7 @@
         .hole-header { text-align: center; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
         .target-banner { 
             text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; 
-            background-color: rgba(255, 255, 255, 0.1); 
+            background-color: rgba(255, 255, 255, 0.1); transition: 0.3s ease;
         }
         
         /* Forms & Inputs */
@@ -67,6 +67,7 @@
         .btn-primary { background-color: var(--accent-blue); color: white; width: 100%; margin-top: 10px; border: none; }
         .btn-primary.green { background-color: var(--accent-green); }
         .btn-outline { background-color: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); width: 100%; margin-top: 10px; }
+        .btn-back { border-color: var(--text-muted); color: var(--text-muted); width: 100%; margin-top: 10px; background-color: transparent; }
         
         /* Conditional Modifiers */
         #modifiers-section { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
@@ -75,7 +76,7 @@
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
             padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;
-            max-width: 500px; margin: 0 auto;
+            max-width: 500px; margin: 0 auto; z-index: 100;
         }
 
         /* Themes */
@@ -94,7 +95,7 @@
     <!-- DASHBOARD VIEW -->
     <div id="dashboardView" class="dashboard">
         <h1>Sim Tracker</h1>
-        <p>Phase 1: Tee & Approach</p>
+        <p>Phase 1.1: Tee & Approach</p>
         <button class="btn btn-primary" onclick="startRound()" style="padding: 20px; font-size: 20px;">Start New Round</button>
     </div>
 
@@ -146,12 +147,20 @@
             <input type="number" id="input-launch" placeholder="e.g. 22" inputmode="decimal">
         </div>
         
-        <div style="height: 120px;"></div> <!-- Spacer for sticky footer -->
-        
         <div class="sticky-footer">
             <button class="btn btn-primary" id="btn-next-hole" onclick="processShot('next')">Go to Next Hole</button>
             <button class="btn btn-outline" id="btn-continue-hole" onclick="processShot('continue')">Continue Playing Hole</button>
+            <button class="btn btn-back" id="btn-back" onclick="goBack()">Back (Undo Shot)</button>
         </div>
+    </div>
+
+    <!-- CHIPPING PLACEHOLDER VIEW (BUG FIX) -->
+    <div id="chippingView" class="hidden dashboard">
+        <h1 style="color: var(--warning);">Sunset Orange Zone</h1>
+        <h2>Chipping Phase</h2>
+        <p id="chip-dist" style="font-size: 24px; color: white; margin: 20px 0; font-weight: bold;">Remaining Yardage: X yds</p>
+        <p style="margin-bottom: 40px;">Phase 2 UI will go here. Your round is safely paused!</p>
+        <button class="btn btn-back" onclick="goBack()" style="padding: 16px; font-size: 18px;">Back to Approach</button>
     </div>
 </div>
 
@@ -173,6 +182,9 @@
         selectedModifier: null
     };
 
+    // Array to store deep copies of our previous shots
+    let stateHistory = []; 
+
     // --- RANDOMIZATION ENGINE ---
     function getRandomYardage(par) {
         if (par === 3) return Math.floor(Math.random() * (180 - 120 + 1)) + 120;
@@ -185,10 +197,9 @@
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('activeView').classList.remove('hidden');
         
-        // Generate random yardages for the 6 holes
         state.holes.forEach(hole => { hole.startYardage = getRandomYardage(hole.par); });
-        
         state.currentHoleIndex = 0;
+        stateHistory = []; // Reset history for new round
         loadHole();
     }
 
@@ -220,7 +231,7 @@
         state.selectedModifier = mod;
     }
 
-    function updateUI() {
+    function updateUI(isBackAction = false) {
         const hole = state.holes[state.currentHoleIndex];
         
         // Header
@@ -240,18 +251,22 @@
         // Theme switching
         if (state.currentStrokes === 0) {
             document.body.className = 'theme-tee';
+            document.getElementById('ui-target-banner').style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            document.getElementById('ui-target-banner').style.color = 'var(--text-main)';
         } else {
             document.body.className = 'theme-approach';
             document.getElementById('ui-target-banner').style.backgroundColor = 'var(--accent-green)';
             document.getElementById('ui-target-banner').style.color = 'white';
         }
 
-        // Reset Inputs
-        state.selectedResult = null;
-        state.selectedModifier = null;
-        document.getElementById('input-launch').value = '';
-        document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById('modifiers-section').style.display = 'none';
+        // Only wipe the inputs clean if we are NOT coming from the "Back" button
+        if (!isBackAction) {
+            state.selectedResult = null;
+            state.selectedModifier = null;
+            document.getElementById('input-launch').value = '';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('modifiers-section').style.display = 'none';
+        }
     }
 
     // --- MATH ENGINE & SUBMISSION ---
@@ -261,6 +276,18 @@
             return;
         }
 
+        // 1. SAVE EXACT STATE TO HISTORY BEFORE CALCULATIONS
+        stateHistory.push({
+            holeIndex: state.currentHoleIndex,
+            strokes: state.currentStrokes,
+            yardage: state.remainingYardage,
+            club: document.getElementById('input-club').value,
+            result: state.selectedResult,
+            modifier: state.selectedModifier,
+            launch: document.getElementById('input-launch').value
+        });
+
+        // 2. CALCULATE SHOT
         const clubDistance = parseInt(document.getElementById('input-club').value);
         let penalty = 0;
 
@@ -273,16 +300,14 @@
             penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
             state.remainingYardage = (state.remainingYardage - clubDistance) + penalty;
         } else if (state.selectedResult === 'Mishit') {
-            // Remaining yardage stays the same, stroke added
             alert("Mishit! Take a +1 penalty stroke and hit from the same spot.");
             state.currentStrokes++; // Extra penalty stroke
         }
 
-        // Prevent negative yardage
         if (state.remainingYardage < 0) state.remainingYardage = 0;
-        
         state.currentStrokes++;
 
+        // 3. ROUTING
         if (route === 'next') {
             if (state.currentHoleIndex < 5) {
                 state.currentHoleIndex++;
@@ -293,12 +318,65 @@
             }
         } else if (route === 'continue') {
             if (state.remainingYardage <= 35) {
-                alert(`Transitioning to Chipping Zone (Phase 2)\nRemaining Yardage: ${state.remainingYardage} yds`);
-                // Placeholder for Phase 2 integration
-                location.reload();
+                // Bug Fix: Replaced reload() with transition to Chipping Placeholder
+                document.getElementById('activeView').classList.add('hidden');
+                document.getElementById('chippingView').classList.remove('hidden');
+                document.getElementById('chip-dist').innerText = `Remaining Yardage: ${state.remainingYardage} yds`;
             } else {
                 updateUI();
             }
+        }
+    }
+
+    // --- TIME MACHINE (UNDO SHOT) ---
+    function goBack() {
+        if (stateHistory.length === 0) {
+            alert("You are at the start of the round! Nothing to undo yet.");
+            return;
+        }
+        
+        // Hide chipping view if we happen to be in the Phase 2 placeholder
+        document.getElementById('chippingView').classList.add('hidden');
+        document.getElementById('activeView').classList.remove('hidden');
+
+        // Pop the last snapshot
+        const prev = stateHistory.pop();
+        
+        // Restore State Variables
+        state.currentHoleIndex = prev.holeIndex;
+        state.currentStrokes = prev.strokes;
+        state.remainingYardage = prev.yardage;
+        state.selectedResult = prev.result;
+        state.selectedModifier = prev.modifier;
+        
+        // Restore Core UI elements (True = do not wipe inputs)
+        updateUI(true); 
+        
+        // Restore Input Fields Manually
+        document.getElementById('input-club').value = prev.club;
+        document.getElementById('input-launch').value = prev.launch;
+        
+        // Restore Selected Buttons
+        document.querySelectorAll('.shot-btn').forEach(b => {
+            if (b.innerText === prev.result) {
+                b.classList.add('selected');
+            } else {
+                b.classList.remove('selected');
+            }
+        });
+        
+        const modSection = document.getElementById('modifiers-section');
+        if (prev.result === 'Slightly Off' || prev.result === 'Way Off' || prev.result === 'Mishit') {
+            modSection.style.display = 'block';
+            document.querySelectorAll('.mod-btn').forEach(b => {
+                if (b.innerText === prev.modifier) {
+                    b.classList.add('selected');
+                } else {
+                    b.classList.remove('selected');
+                }
+            });
+        } else {
+            modSection.style.display = 'none';
         }
     }
 </script>

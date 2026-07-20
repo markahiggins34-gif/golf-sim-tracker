@@ -6,26 +6,20 @@
     <title>Mark's Golf Sim</title>
     <style>
         :root {
-            /* HIGH CONTRAST DARK MODE THEMES */
-            --bg-tee: #04140b;       /* Deep Charcoal Green (Tee Box) */
-            --bg-approach: #115c32;  /* Vibrant Lawn Green (Approach Zone) */
+            /* HIGH-CONTRAST MASTERS PALETTE */
+            --bg-tee: #04140b;       /* Charcoal Dark Green (Tee Box Focus) */
+            --bg-approach: #115c32;  /* Vibrant Lawn Green (Approach Zone Focus) */
             --bg-panel: #164627; 
             --text-main: #ffffff;
             --text-muted: #b3d9c3; 
             --accent-yellow: #FFD520; 
             --border-color: #1a7a44;
-            
-            /* Fringe Theme (Chipping) */
             --bg-chip: #113824;
             --panel-chip: #1b5235;
             --border-chip: #2d8a55;
-            
-            /* Putting Theme (Short Grass Green) */
             --bg-putt: #178575;
             --panel-putt: #23a18f;
             --border-putt: #32c2ae;
-
-            /* Scorecard Theme */
             --bg-score: #ffffff;
             --text-score: #111111;
         }
@@ -34,7 +28,6 @@
         body { background-color: var(--bg-tee); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; padding-bottom: 140px; }
         
-        /* Global Header */
         .global-header {
             display: flex; justify-content: space-between; align-items: center;
             background-color: var(--bg-panel); padding: 10px; border-radius: 12px; margin-bottom: 15px;
@@ -43,27 +36,18 @@
         .progress-bar { width: 70px; height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background-color: var(--accent-yellow); width: 16.6%; transition: width 0.3s ease; }
         
-        /* Dashboard */
         .dashboard { text-align: center; margin-top: 50px; }
         .dashboard h1 { margin-bottom: 30px; font-size: 32px; color: var(--accent-yellow); font-weight: 800; }
         
-        /* Game Cards */
         .card { background-color: var(--bg-panel); border-radius: 16px; padding: 15px; border: 1px solid var(--border-color); }
         .hole-header { text-align: center; margin-bottom: 10px; font-size: 22px; font-weight: 700; }
         
         .target-banner { 
             text-align: center; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; 
-            background-color: rgba(255, 255, 255, 0.1); font-size: 16px; transition: font-size 0.2s ease;
+            background-color: rgba(255, 255, 255, 0.1); font-size: 16px;
         }
         
-        /* ENLARGED REMAINING TEXT FOR APPROACH SHOTS */
-        body.theme-approach .target-banner {
-            font-size: 28px !important;
-            padding: 15px 10px;
-            line-height: 1.2;
-        }
-        
-        /* Giant Display text for Short Game */
+        body.theme-approach .target-banner { font-size: 28px !important; padding: 15px 10px; line-height: 1.2; }
         .giant-target-text { font-size: 54px; font-weight: 900; text-align: center; color: var(--accent-yellow); margin: 5px 0; line-height: 1; text-transform: uppercase; }
         .mental-cue { text-align: center; font-size: 13px; color: var(--text-muted); font-style: italic; margin-bottom: 15px; padding: 0 10px; }
         
@@ -73,7 +57,6 @@
             border: 1px solid var(--border-color); border-radius: 10px; font-size: 16px; appearance: none;
         }
         
-        /* Grids and Buttons */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .btn {
             padding: 12px; background-color: rgba(0,0,0,0.25); color: white; border: 1px solid var(--border-color);
@@ -82,7 +65,6 @@
         .btn:active { opacity: 0.7; }
         .btn.selected { background-color: var(--accent-yellow); color: #000000; border-color: var(--accent-yellow); }
         
-        /* Compact Sticky Footer */
         .sticky-footer {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bg-panel);
             padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;
@@ -97,7 +79,6 @@
 
         #modifiers-section { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-        /* Scorecard Layout Matrix */
         .scorecard-view { background-color: var(--bg-score); color: var(--text-score); padding: 20px 15px; border-radius: 16px; }
         .scorecard-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
         .scorecard-table th, .scorecard-table td { padding: 10px 6px; text-align: center; border: 1px solid #ddd; font-size: 14px; }
@@ -112,7 +93,6 @@
         .sc-dsquare { border: 2px solid #cc0000; color: #cc0000; box-shadow: 0 0 0 2px #cc0000; }
         .sc-par { font-weight: bold; color: #111; }
 
-        /* Theme Engine State Overrides */
         body.theme-tee { background-color: var(--bg-tee); }
         body.theme-approach { background-color: var(--bg-approach); }
         body.theme-approach .global-header, body.theme-approach .card, body.theme-approach .sticky-footer { background-color: rgba(11, 58, 29, 0.85); border-color: #174e2a; }
@@ -142,7 +122,6 @@
     <!-- MAIN GAME PANEL -->
     <div id="gameView" class="hidden">
         
-        <!-- Global Header -->
         <div class="global-header" id="ui-global-header">
             <span id="ui-strokes">Strokes: 0</span>
             <span id="ui-hole-counter">Hole 1 of 6</span>
@@ -194,14 +173,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ</option>
-                <option value="58">58° Mack Daddy</option>
-                <option value="AW">AW</option>
-                <option value="PW">PW</option>
+                <option value="56">56° Cleveland RTZ[cite: 1]</option>
+                <option value="58">58° Mack Daddy[cite: 1]</option>
+                <option value="AW">AW[cite: 1]</option>
+                <option value="PW">PW[cite: 1]</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -212,17 +191,18 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?</label>
+            <label>How Many Putts Were Left Short?[cite: 1]</label>
+            . btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -245,7 +225,7 @@
             </div>
         </div>
 
-        <!-- ZONE 6: DYNAMIC TOURNAMENT ROUND SCORECARD SUMMARY -->
+        <!-- ZONE 6: FINAL SCORECARD OVERALL SUMMARY -->
         <div id="scorecardModule" class="scorecard-view hidden">
             <h2 style="text-align: center; color: #0b4524; font-weight: 800;">Round Complete Card</h2>
             <table class="scorecard-table">
@@ -270,7 +250,7 @@
             </div>
         </div>
 
-        <!-- COMPACT MICRO-FOOTER NAVIGATION INTERFACE -->
+        <!-- FOOTER ACTIONS -->
         <div class="sticky-footer" id="ui-footer-container">
             <div class="footer-row" id="ui-footer-primary-actions">
                 <button class="btn btn-action" id="btn-main-action" onclick="handleSubmit()">Go to Next Hole</button>
@@ -285,11 +265,10 @@
 </div>
 
 <script>
-    // --- APP ARCHITECTURE ENGINE ---
     let state = {
         currentHoleIndex: 0,
         historyStack: [],
-        routingChoice: 'tee' 
+        routingChoice: 'tee'
     };
 
     let holesLedger = [
@@ -331,7 +310,7 @@
     }
 
     function resetRound() {
-        location.reload();
+        startRound();
     }
 
     function takeSnapshot() {
@@ -351,7 +330,6 @@
 
         let hole = holesLedger[state.currentHoleIndex];
         
-        // Fix: Update strokes on selection screen immediately
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
@@ -560,6 +538,9 @@
             hole.recordedModifier = null;
             document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('selected'));
         }
+        
+        // Instant Live Counter Tally Binding Node updates
+        document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes + 1}`;
     }
 
     function selectModifier(element, label) {
@@ -573,6 +554,9 @@
         holesLedger[state.currentHoleIndex].totalPutts = val;
         document.querySelectorAll('.putt-btn').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
+        
+        let hole = holesLedger[state.currentHoleIndex];
+        document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes + val}`;
     }
 
     function selectShort(element, val) {
@@ -654,10 +638,10 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        // True Skipping Pipeline: Checks if yardage threshold drops to zero
+        // FIXED: Only evaluates true skipping parameters if remaining mathematical distance hits zero
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || hole.par === 3)) {
             hole.remainingYardage = 0;
-            hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
+            hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; // Strict 2-7 bounds constraint
             return true; 
         }
 
@@ -667,7 +651,7 @@
             let penalty = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
         } else if (hole.recordedShotResult === 'Way Off') {
-            let penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+            let penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20; // Severe penalization condition
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
         } else if (hole.recordedShotResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke. Ball remains at current spot.");

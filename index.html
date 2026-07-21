@@ -66,7 +66,8 @@
         /* Giant Display text for Short Game */
         .giant-target-text { font-size: 54px; font-weight: 900; text-align: center; color: var(--accent-yellow); margin: 5px 0; line-height: 1; text-transform: uppercase; }
         .mental-cue { text-align: center; font-size: 13px; color: var(--text-muted); font-style: italic; margin-bottom: 15px; padding: 0 10px; }
-        
+        .putt-context-badge { text-align: center; font-size: 18px; font-weight: 800; color: var(--accent-yellow); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
         label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; margin-top: 12px; font-weight: 600; }
         select, input[type="number"] {
             width: 100%; padding: 12px; background-color: rgba(0,0,0,0.35); color: white;
@@ -111,6 +112,12 @@
         .sc-square { border: 2px solid #cc0000; color: #cc0000; }
         .sc-dsquare { border: 2px solid #cc0000; color: #cc0000; box-shadow: 0 0 0 2px #cc0000; }
         .sc-par { font-weight: bold; color: #111; }
+
+        /* Detailed Shot Breakdown Log Styling */
+        .breakdown-section { margin-top: 25px; border-top: 2px solid #1a7a44; padding-top: 15px; text-align: left; }
+        .breakdown-card { background: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .breakdown-card h4 { color: #0b4524; margin-bottom: 6px; font-size: 15px; }
+        .breakdown-shot { font-size: 12px; color: #333; margin-bottom: 4px; padding-left: 8px; border-left: 2px solid #1a7a44; }
 
         /* Theme Engine State Overrides */
         body.theme-tee { background-color: var(--bg-tee); }
@@ -213,6 +220,7 @@
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
             <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
+            <div class="putt-context-badge" id="ui-putt-context">PAR PUTT</div>
 
             <label>Putting Result</label>
             <div class="btn-grid">
@@ -239,7 +247,7 @@
             </div>
         </div>
 
-        <!-- ZONE 6: DYNAMIC TOURNAMENT ROUND SCORECARD SUMMARY -->
+        <!-- ZONE 6: DYNAMIC TOURNAMENT ROUND SCORECARD SUMMARY & DETAILED SHOT BREAKDOWN LOG -->
         <div id="scorecardModule" class="scorecard-view hidden">
             <h2 style="text-align: center; color: #0b4524; font-weight: 800;">Round Complete Card</h2>
             <table class="scorecard-table">
@@ -259,6 +267,13 @@
                     </tr>
                 </tfoot>
             </table>
+
+            <!-- HOLE-BY-HOLE DETAILED SHOT LOG -->
+            <div class="breakdown-section">
+                <h3 style="color: #0b4524; font-weight: 800; margin-bottom: 10px; text-align: center;">Shot-by-Shot Log</h3>
+                <div id="breakdown-container"></div>
+            </div>
+
             <div style="margin-top:20px; text-align:center;">
                 <button class="btn btn-action" onclick="resetRound();" style="width:80%; padding: 14px;">Restart Sim Loop</button>
             </div>
@@ -287,12 +302,12 @@
     };
 
     let holesLedger = [
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 5, type: "Par 5", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false }
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
+        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
+        { par: 5, type: "Par 5", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
+        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false }
     ];
 
     function getRandomYardage(par) {
@@ -317,6 +332,7 @@
             h.recordedShotResult = null;
             h.recordedModifier = null;
             h.recordedLaunch = '';
+            h.shotsLog = [];
         });
 
         state.currentHoleIndex = 0;
@@ -335,6 +351,17 @@
             routingChoice: state.routingChoice,
             chipPacesValue: document.getElementById('input-chip-paces').value
         });
+    }
+
+    function calculatePuttContext(hole) {
+        let strokesBeforePutt = hole.strokes;
+        let diff = (strokesBeforePutt + 1) - hole.par;
+        if (diff <= -2) return "Eagle Putt";
+        if (diff === -1) return "Birdie Putt";
+        if (diff === 0) return "Par Putt";
+        if (diff === 1) return "Bogey Putt";
+        if (diff === 2) return "Double Bogey Putt";
+        return "Triple+ Putt";
     }
 
     function syncHoleView() {
@@ -417,6 +444,8 @@
             document.body.className = 'theme-putt';
             document.getElementById('puttingModule').classList.remove('hidden');
             document.getElementById('ui-putt-paces').innerText = `${hole.paces} PACES`;
+            document.getElementById('ui-putt-context').innerText = calculatePuttContext(hole);
+
             document.getElementById('btn-main-action').innerText = "Finish Hole & Tally";
             document.getElementById('btn-main-action').className = "btn btn-action";
             document.getElementById('btn-sub-action').classList.add('hidden');
@@ -538,6 +567,26 @@
             <td style="font-weight:bold;">${totalSign}</td>
         `;
 
+        // Render Detailed Shot-by-Shot Log
+        let breakdownContainer = document.getElementById('breakdown-container');
+        breakdownContainer.innerHTML = '';
+        holesLedger.forEach((h, idx) => {
+            let cardHtml = `<div class="breakdown-card">
+                <h4>Hole ${idx + 1} (${h.type} | Par ${h.par} | Score: ${h.strokes})</h4>`;
+            
+            if (h.shotsLog && h.shotsLog.length > 0) {
+                h.shotsLog.forEach(s => {
+                    cardHtml += `<div class="breakdown-shot">• ${s}</div>`;
+                });
+            }
+            if (h.totalPutts !== null) {
+                let pText = h.totalPutts === 0 ? "Chip-In (0 putts)" : `${h.totalPutts} Putt(s) - ${h.puttResultText}`;
+                cardHtml += `<div class="breakdown-shot">• Putting: ${pText}</div>`;
+            }
+            cardHtml += `</div>`;
+            breakdownContainer.innerHTML += cardHtml;
+        });
+
         document.getElementById('scorecardModule').classList.remove('hidden');
     }
 
@@ -573,6 +622,32 @@
         element.classList.add('selected');
     }
 
+    function processFullSwingSubmission() {
+        let hole = holesLedger[state.currentHoleIndex];
+        if (!hole.recordedShotResult) return false;
+
+        takeSnapshot();
+        hole.strokes++; 
+
+        let clubDist = parseInt(document.getElementById('input-club').value);
+        let launch = document.getElementById('input-launch').value;
+        let modText = hole.recordedModifier ? ` (${hole.recordedModifier})` : '';
+        let launchText = launch ? ` @ ${launch}° Launch` : '';
+
+        hole.shotsLog.push(`Shot ${hole.strokes} (${hole.zone.toUpperCase()}): ${clubDist}y Club | Result: ${hole.recordedShotResult}${modText}${launchText}`);
+
+        let skippedChipping = executeCalculations(hole);
+
+        if (skippedChipping) {
+            hole.zone = 'putt';
+        } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) {
+            hole.zone = 'chip';
+        } else {
+            hole.zone = 'approach';
+        }
+        return true;
+    }
+
     function processChipSubmission(routeToNextHole) {
         let hole = holesLedger[state.currentHoleIndex];
         let pInput = document.getElementById('input-chip-paces').value;
@@ -584,17 +659,20 @@
 
         takeSnapshot();
         hole.strokes++; 
+        let chipClub = document.getElementById('input-chip-club').value;
 
         if (paces === 0) {
             hole.paces = 0;
             hole.totalPutts = 0;
             hole.puttResultText = "Chip In!";
+            hole.shotsLog.push(`Shot ${hole.strokes} (CHIP): ${chipClub}° Wedge | HOLED OUT (0 paces)`);
             hole.zone = 'singleScorecard';
             syncHoleView();
             return;
         }
 
         if (paces > 7) {
+            hole.shotsLog.push(`Shot ${hole.strokes} (CHIP): ${chipClub}° Wedge | Result: Left ${paces} yds/paces away (Outside 7-pace mat)`);
             hole.remainingYardage = paces;
             hole.zone = 'chip';
             document.getElementById('input-chip-paces').value = '';
@@ -602,6 +680,7 @@
             return;
         }
 
+        hole.shotsLog.push(`Shot ${hole.strokes} (CHIP): ${chipClub}° Wedge | Result: Left ${paces} paces away`);
         hole.paces = paces;
         hole.zone = 'putt';
 
@@ -619,20 +698,7 @@
         let hole = holesLedger[state.currentHoleIndex];
 
         if (hole.zone === 'tee' || hole.zone === 'approach') {
-            if (!hole.recordedShotResult) return alert("Please log shot result.");
-            takeSnapshot();
-            
-            hole.strokes++; 
-            let skippedChipping = executeCalculations(hole);
-            
-            if (skippedChipping) {
-                hole.zone = 'putt';
-            } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) {
-                hole.zone = 'chip';
-            } else {
-                hole.zone = 'approach';
-            }
-            
+            if (!processFullSwingSubmission()) return alert("Please log shot result.");
             let nextIndex = getNextIncompleteIndex();
             if (nextIndex !== null) {
                 state.currentHoleIndex = nextIndex;
@@ -661,20 +727,10 @@
             return;
         }
 
-        if (!hole.recordedShotResult) return alert("Please log shot result.");
-        
-        takeSnapshot();
-        hole.strokes++;
-        let skippedChipping = executeCalculations(hole);
-
-        if (skippedChipping) {
-            hole.zone = 'putt';
-        } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { 
-            hole.zone = 'chip';
-        } else {
-            hole.zone = 'approach';
+        if (hole.zone === 'tee' || hole.zone === 'approach') {
+            if (!processFullSwingSubmission()) return alert("Please log shot result.");
+            syncHoleView();
         }
-        syncHoleView();
     }
 
     function executeCalculations(hole) {

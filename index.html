@@ -351,7 +351,6 @@
 
         let hole = holesLedger[state.currentHoleIndex];
         
-        // Dynamic Live Tally Bindings (Strictly updates stroke labels)
         document.getElementById('ui-strokes').innerText = `Strokes: ${hole.strokes}`;
         document.getElementById('ui-hole-counter').innerText = `Hole ${state.currentHoleIndex + 1} of 6`;
         document.getElementById('ui-progress').style.width = `${((state.currentHoleIndex + 1) / 6) * 100}%`;
@@ -409,8 +408,11 @@
             document.body.className = 'theme-chip';
             document.getElementById('chippingModule').classList.remove('hidden');
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
+            
+            // DUAL ACTION CHIPPING CONFIGURATION: Allows Go To Next Hole vs. Go To Green
             document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Green";
-            document.getElementById('btn-sub-action').classList.add('hidden'); 
+            document.getElementById('btn-sub-action').innerText = "Submit Chip & Go to Next Hole";
+            document.getElementById('btn-sub-action').classList.remove('hidden');
             
             document.getElementById('input-chip-paces').value = hole.paces || '';
 
@@ -617,7 +619,7 @@
                 alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
                 hole.remainingYardage = hole.paces; 
             } else {
-                hole.zone = 'putt';
+                hole.zone = 'putt'; // Primary Action: Go to Green
             }
             syncHoleView();
 
@@ -633,6 +635,30 @@
 
     function handleContinue() {
         let hole = holesLedger[state.currentHoleIndex];
+
+        if (hole.zone === 'chip') {
+            // Secondary Action: Submit Chip & Go To Next Hole (Batch Chipping Support)
+            let paces = document.getElementById('input-chip-paces').value;
+            if (!paces || paces < 0) return alert("Enter number of paces.");
+            
+            takeSnapshot();
+            hole.paces = parseInt(paces);
+            hole.strokes++;
+
+            if (hole.paces > 7) {
+                alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
+                hole.remainingYardage = hole.paces; 
+            } else {
+                hole.zone = 'putt'; // Pre-saves for when you come back to putting
+                let nextIndex = getNextIncompleteIndex();
+                if (nextIndex !== null) {
+                    state.currentHoleIndex = nextIndex;
+                }
+            }
+            syncHoleView();
+            return;
+        }
+
         if (!hole.recordedShotResult) return alert("Please log shot result.");
         
         takeSnapshot();
@@ -666,11 +692,11 @@
         } else if (hole.recordedShotResult === 'Slightly Off') {
             let penalty = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
-            if (hole.remainingYardage < 5) hole.remainingYardage = Math.floor(Math.random() * 10) + 5; // Fringe clamp
+            if (hole.remainingYardage < 5) hole.remainingYardage = Math.floor(Math.random() * 10) + 5; 
         } else if (hole.recordedShotResult === 'Way Off') {
             let penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
-            if (hole.remainingYardage < 15) hole.remainingYardage = Math.floor(Math.random() * 15) + 15; // Severe penalty clamp
+            if (hole.remainingYardage < 15) hole.remainingYardage = Math.floor(Math.random() * 15) + 15; 
         } else if (hole.recordedShotResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke. Ball remains at current spot.");
             hole.strokes++; 

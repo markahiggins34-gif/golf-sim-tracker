@@ -204,11 +204,11 @@
                 <option value="PW">PW</option>
             </select>
 
-            <label>Distance to Pin After Chip (Paces)</label>
-            <input type="number" id="input-chip-paces" style="text-align: center; font-size: 24px; font-weight: bold;" placeholder="Paces to Hole" inputmode="numeric" max="7">
+            <label>Distance to Pin After Chip (Paces/Yards)</label>
+            <input type="number" id="input-chip-paces" style="text-align: center; font-size: 24px; font-weight: bold;" placeholder="Paces/Yards to Hole" inputmode="numeric">
         </div>
 
-        <!-- ZONE 4: PUTTING MODULE (REVAMPED TO PUTTING RESULT) -->
+        <!-- ZONE 4: PUTTING MODULE -->
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
@@ -411,7 +411,7 @@
             document.getElementById('btn-sub-action').className = "btn btn-outline";
             document.getElementById('btn-sub-action').classList.remove('hidden');
             
-            document.getElementById('input-chip-paces').value = hole.paces || '';
+            document.getElementById('input-chip-paces').value = hole.paces !== null ? hole.paces : '';
 
         } else if (hole.zone === 'putt') {
             document.body.className = 'theme-putt';
@@ -436,7 +436,8 @@
         
         document.getElementById('ui-single-score-title').innerText = `Hole ${state.currentHoleIndex + 1} Complete!`;
         document.getElementById('ui-single-score-breakdown').innerText = `Total Score: ${hole.strokes} Strokes`;
-        document.getElementById('ui-single-score-sub').innerText = `Par ${hole.par} | Putts: ${hole.totalPutts} (${hole.puttResultText})`;
+        let puttInfo = (hole.totalPutts === 0) ? "Chip-In!" : `Putts: ${hole.totalPutts} (${hole.puttResultText})`;
+        document.getElementById('ui-single-score-sub').innerText = `Par ${hole.par} | ${puttInfo}`;
 
         let nextIncIdx = getNextIncompleteIndex();
         let nextHoleBtn = document.getElementById('btn-next-putt-route');
@@ -572,6 +573,47 @@
         element.classList.add('selected');
     }
 
+    function processChipSubmission(routeToNextHole) {
+        let hole = holesLedger[state.currentHoleIndex];
+        let pInput = document.getElementById('input-chip-paces').value;
+        let paces = parseInt(pInput);
+        if (isNaN(paces) || paces < 0) {
+            alert("Please enter a valid distance in paces or yards.");
+            return;
+        }
+
+        takeSnapshot();
+        hole.strokes++; 
+
+        if (paces === 0) {
+            hole.paces = 0;
+            hole.totalPutts = 0;
+            hole.puttResultText = "Chip In!";
+            hole.zone = 'singleScorecard';
+            syncHoleView();
+            return;
+        }
+
+        if (paces > 7) {
+            hole.remainingYardage = paces;
+            hole.zone = 'chip';
+            document.getElementById('input-chip-paces').value = '';
+            syncHoleView();
+            return;
+        }
+
+        hole.paces = paces;
+        hole.zone = 'putt';
+
+        if (routeToNextHole) {
+            let nextIndex = getNextIncompleteIndex();
+            if (nextIndex !== null) {
+                state.currentHoleIndex = nextIndex;
+            }
+        }
+        syncHoleView();
+    }
+
     // MAIN ACTION HANDLER (Left Button)
     function handleSubmit() {
         let hole = holesLedger[state.currentHoleIndex];
@@ -598,25 +640,7 @@
             syncHoleView();
 
         } else if (hole.zone === 'chip') {
-            let pInput = document.getElementById('input-chip-paces').value;
-            let paces = parseInt(pInput);
-            if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
-            
-            if (paces > 7) {
-                alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
-                return;
-            }
-
-            takeSnapshot();
-            hole.paces = paces;
-            hole.strokes++;
-            hole.zone = 'putt'; 
-
-            let nextIndex = getNextIncompleteIndex();
-            if (nextIndex !== null) {
-                state.currentHoleIndex = nextIndex;
-            }
-            syncHoleView();
+            processChipSubmission(true);
 
         } else if (hole.zone === 'putt') {
             if (!hole.puttResultText) return alert("Please select a Putting Result.");
@@ -633,20 +657,7 @@
         let hole = holesLedger[state.currentHoleIndex];
 
         if (hole.zone === 'chip') {
-            let pInput = document.getElementById('input-chip-paces').value;
-            let paces = parseInt(pInput);
-            if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
-            
-            if (paces > 7) {
-                alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
-                return;
-            }
-
-            takeSnapshot();
-            hole.paces = paces;
-            hole.strokes++;
-            hole.zone = 'putt';
-            syncHoleView();
+            processChipSubmission(false);
             return;
         }
 

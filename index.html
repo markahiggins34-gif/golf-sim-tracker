@@ -194,25 +194,25 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ[cite: 1]</option>
-                <option value="58">58° Mack Daddy[cite: 1]</option>
-                <option value="AW">AW[cite: 1]</option>
-                <option value="PW">PW[cite: 1]</option>
+                <option value="56">56° Cleveland RTZ</option>
+                <option value="58">58° Mack Daddy</option>
+                <option value="AW">AW</option>
+                <option value="PW">PW</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
-            <input type="number" id="input-chip-paces" style="text-align: center; font-size: 24px; font-weight: bold;" placeholder="Paces to Hole" inputmode="numeric">
+            <input type="number" id="input-chip-paces" style="text-align: center; font-size: 24px; font-weight: bold;" placeholder="Paces to Hole" inputmode="numeric" max="7">
         </div>
 
         <!-- ZONE 4: PUTTING MODULE -->
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
@@ -335,10 +335,12 @@
     }
 
     function takeSnapshot() {
+        // Deep clone state snapshot including current DOM input values
         state.historyStack.push({
             currentHoleIndex: state.currentHoleIndex,
             ledgerCopy: JSON.parse(JSON.stringify(holesLedger)),
-            routingChoice: state.routingChoice
+            routingChoice: state.routingChoice,
+            chipPacesValue: document.getElementById('input-chip-paces').value
         });
     }
 
@@ -365,11 +367,6 @@
         document.getElementById('ui-footer-container').classList.remove('hidden');
         document.getElementById('ui-footer-primary-actions').classList.remove('hidden');
 
-        document.getElementById('btn-main-action').innerText = "Go to Next Hole";
-        document.getElementById('btn-main-action').className = "btn btn-action";
-        document.getElementById('btn-sub-action').innerText = "Go to Next Shot";
-        document.getElementById('btn-sub-action').classList.remove('hidden');
-
         if (hole.zone === 'singleScorecard') {
             document.getElementById('ui-global-header').classList.add('hidden');
             document.getElementById('ui-footer-container').classList.add('hidden');
@@ -378,6 +375,12 @@
             document.getElementById('fullSwingModule').classList.remove('hidden');
             document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
             
+            // Standard Navigation Layout for Full Swings
+            document.getElementById('btn-main-action').innerText = "Go to Next Hole";
+            document.getElementById('btn-main-action').className = "btn btn-action";
+            document.getElementById('btn-sub-action').innerText = "Go to Next Shot";
+            document.getElementById('btn-sub-action').classList.remove('hidden');
+
             if (hole.zone === 'tee') {
                 document.body.className = 'theme-tee';
                 document.getElementById('ui-target-banner').style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
@@ -410,9 +413,11 @@
             document.getElementById('chippingModule').classList.remove('hidden');
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
             
-            // Contextual labeling for Chipping Zone
-            document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Green";
-            document.getElementById('btn-sub-action').innerText = "Submit Chip & Go to Next Hole";
+            // FLIPPED BUTTON POSITIONS FOR CONSISTENCY (Primary left, Secondary right)
+            document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Next Hole";
+            document.getElementById('btn-main-action').className = "btn btn-action";
+            document.getElementById('btn-sub-action').innerText = "Submit Chip & Go to Green";
+            document.getElementById('btn-sub-action').className = "btn btn-outline";
             document.getElementById('btn-sub-action').classList.remove('hidden');
             
             document.getElementById('input-chip-paces').value = hole.paces || '';
@@ -422,6 +427,7 @@
             document.getElementById('puttingModule').classList.remove('hidden');
             document.getElementById('ui-putt-paces').innerText = `${hole.paces} PACES`;
             document.getElementById('btn-main-action').innerText = "Finish Hole & Tally";
+            document.getElementById('btn-main-action').className = "btn btn-action";
             document.getElementById('btn-sub-action').classList.add('hidden');
 
             document.querySelectorAll('.putt-btn').forEach(b => {
@@ -584,6 +590,7 @@
         element.classList.add('selected');
     }
 
+    // MAIN ACTION HANDLER (Left Button)
     function handleSubmit() {
         let hole = holesLedger[state.currentHoleIndex];
 
@@ -596,7 +603,7 @@
             
             if (skippedChipping) {
                 hole.zone = 'putt';
-            } else if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
+            } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { // Max chipping distance 40 Yds
                 hole.zone = 'chip';
             } else {
                 hole.zone = 'approach';
@@ -609,18 +616,25 @@
             syncHoleView();
 
         } else if (hole.zone === 'chip') {
-            let paces = document.getElementById('input-chip-paces').value;
-            if (!paces || paces < 0) return alert("Enter number of paces.");
+            // Main Button in Chipping: Submit Chip & Go to Next Hole
+            let pInput = document.getElementById('input-chip-paces').value;
+            let paces = parseInt(pInput);
+            if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
             
-            takeSnapshot();
-            hole.paces = parseInt(paces);
-            hole.strokes++;
+            // STRICT PUTTING BOUNDARY CAP: Max 7 paces
+            if (paces > 7) {
+                alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
+                return;
+            }
 
-            if (hole.paces > 7) {
-                alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
-                hole.remainingYardage = hole.paces; 
-            } else {
-                hole.zone = 'putt';
+            takeSnapshot();
+            hole.paces = paces;
+            hole.strokes++;
+            hole.zone = 'putt'; // Locks putting paces to memory
+
+            let nextIndex = getNextIncompleteIndex();
+            if (nextIndex !== null) {
+                state.currentHoleIndex = nextIndex;
             }
             syncHoleView();
 
@@ -634,27 +648,26 @@
         }
     }
 
+    // SUB ACTION HANDLER (Right Button)
     function handleContinue() {
         let hole = holesLedger[state.currentHoleIndex];
 
         if (hole.zone === 'chip') {
-            let paces = document.getElementById('input-chip-paces').value;
-            if (!paces || paces < 0) return alert("Enter number of paces.");
+            // Secondary Button in Chipping: Submit Chip & Go to Green
+            let pInput = document.getElementById('input-chip-paces').value;
+            let paces = parseInt(pInput);
+            if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
             
-            takeSnapshot();
-            hole.paces = parseInt(paces);
-            hole.strokes++;
-
-            if (hole.paces > 7) {
-                alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
-                hole.remainingYardage = hole.paces; 
-            } else {
-                hole.zone = 'putt'; 
-                let nextIndex = getNextIncompleteIndex();
-                if (nextIndex !== null) {
-                    state.currentHoleIndex = nextIndex;
-                }
+            // STRICT PUTTING BOUNDARY CAP: Max 7 paces
+            if (paces > 7) {
+                alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
+                return;
             }
+
+            takeSnapshot();
+            hole.paces = paces;
+            hole.strokes++;
+            hole.zone = 'putt';
             syncHoleView();
             return;
         }
@@ -667,7 +680,7 @@
 
         if (skippedChipping) {
             hole.zone = 'putt';
-        } else if (hole.remainingYardage <= 35 && hole.remainingYardage > 0) {
+        } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { // Max chipping distance 40 Yds
             hole.zone = 'chip';
         } else {
             hole.zone = 'approach';
@@ -683,20 +696,18 @@
         // TRUE SKIPPING PIPELINE: Checks if yardage threshold drops to zero
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || (hole.par === 3 && hole.zone === 'tee'))) {
             hole.remainingYardage = 0;
-            // Randomizes paces away between 2 and 9 (wider dispersion)
-            hole.paces = Math.floor(Math.random() * (9 - 2 + 1)) + 2; 
+            // Randomizes paces away between 2 and 7 (strict max 7 paces for mat)
+            hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
             return true; 
         }
 
         if (hole.recordedShotResult === 'On Target') {
             hole.remainingYardage -= clubDistance;
         } else if (hole.recordedShotResult === 'Slightly Off') {
-            // WIDER DISPERSION: 5 to 25 yard penalty spread
             let penalty = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
             if (hole.remainingYardage < 5) hole.remainingYardage = Math.floor(Math.random() * 12) + 5; 
         } else if (hole.recordedShotResult === 'Way Off') {
-            // WIDER DISPERSION: 20 to 45 yard penalty spread
             let penalty = Math.floor(Math.random() * (45 - 20 + 1)) + 20;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
             if (hole.remainingYardage < 15) hole.remainingYardage = Math.floor(Math.random() * 18) + 15; 
@@ -718,6 +729,11 @@
         state.routingChoice = checkpoint.routingChoice;
         
         syncHoleView();
+
+        // PERSIST TYPED VALUES ON BACK BUTTON: Restores saved chip paces value to input field
+        if (checkpoint.chipPacesValue !== undefined) {
+            document.getElementById('input-chip-paces').value = checkpoint.chipPacesValue;
+        }
     }
 </script>
 

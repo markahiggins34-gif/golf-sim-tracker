@@ -100,7 +100,7 @@
         /* Scorecard Layout Matrix */
         .scorecard-view { background-color: var(--bg-score); color: var(--text-score); padding: 20px 15px; border-radius: 16px; }
         .scorecard-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
-        .scorecard-table th, .scorecard-table td { padding: 10px 6px; text-align: center; border: 1px solid #ddd; font-size: 14px; }
+        .scorecard-table th, .scorecard-table td { padding: 10px 6px; text-align: center; border: 1px solid #ddd; font-size: 13px; }
         .scorecard-table th { background-color: #0b4524; color: white; }
         .scorecard-table tr.total-row { background-color: #eaeaea; font-weight: bold; border-top: 2px solid #222; }
         
@@ -194,14 +194,14 @@
         <div id="chippingModule" class="card hidden">
             <div class="hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
-            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
+            <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.[cite: 1]</div>
 
             <label>Select Club</label>
             <select id="input-chip-club">
-                <option value="56">56° Cleveland RTZ</option>
-                <option value="58">58° Mack Daddy</option>
-                <option value="AW">AW</option>
-                <option value="PW">PW</option>
+                <option value="56">56° Cleveland RTZ[cite: 1]</option>
+                <option value="58">58° Mack Daddy[cite: 1]</option>
+                <option value="AW">AW[cite: 1]</option>
+                <option value="PW">PW[cite: 1]</option>
             </select>
 
             <label>Distance to Pin After Chip (Paces)</label>
@@ -212,17 +212,17 @@
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
-            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
+            <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.[cite: 1]</div>
 
             <label>Total Putts to Finish Hole</label>
             <div class="btn-grid">
                 <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts</button>
+                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
                 <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
             </div>
 
-            <label>How Many Putts Were Left Short?</label>
+            <label>How Many Putts Were Left Short?[cite: 1]</label>
             <div class="btn-grid">
                 <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
                 <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
@@ -255,7 +255,7 @@
                         <th>Par</th>
                         <th>Score</th>
                         <th>Putts (Short)</th>
-                        <th>Shape</th>
+                        <th>Score / Shape</th>
                     </tr>
                 </thead>
                 <tbody id="scorecard-rows">
@@ -274,7 +274,7 @@
         <div class="sticky-footer" id="ui-footer-container">
             <div class="footer-row" id="ui-footer-primary-actions">
                 <button class="btn btn-action" id="btn-main-action" onclick="handleSubmit()">Go to Next Hole</button>
-                <button class="btn btn-outline" id="btn-sub-action" onclick="handleContinue()">Continue Playing Hole</button>
+                <button class="btn btn-outline" id="btn-sub-action" onclick="handleContinue()">Go to Next Shot</button>
             </div>
             <div class="footer-row" id="ui-footer-back-action">
                 <button class="btn btn-back" onclick="handleBack()">Back (Undo Shot)</button>
@@ -367,6 +367,7 @@
 
         document.getElementById('btn-main-action').innerText = "Go to Next Hole";
         document.getElementById('btn-main-action').className = "btn btn-action";
+        document.getElementById('btn-sub-action').innerText = "Go to Next Shot";
         document.getElementById('btn-sub-action').classList.remove('hidden');
 
         if (hole.zone === 'singleScorecard') {
@@ -409,7 +410,7 @@
             document.getElementById('chippingModule').classList.remove('hidden');
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
             
-            // DUAL ACTION CHIPPING CONFIGURATION: Allows Go To Next Hole vs. Go To Green
+            // Contextual labeling for Chipping Zone
             document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Green";
             document.getElementById('btn-sub-action').innerText = "Submit Chip & Go to Next Hole";
             document.getElementById('btn-sub-action').classList.remove('hidden');
@@ -619,7 +620,7 @@
                 alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
                 hole.remainingYardage = hole.paces; 
             } else {
-                hole.zone = 'putt'; // Primary Action: Go to Green
+                hole.zone = 'putt';
             }
             syncHoleView();
 
@@ -637,7 +638,6 @@
         let hole = holesLedger[state.currentHoleIndex];
 
         if (hole.zone === 'chip') {
-            // Secondary Action: Submit Chip & Go To Next Hole (Batch Chipping Support)
             let paces = document.getElementById('input-chip-paces').value;
             if (!paces || paces < 0) return alert("Enter number of paces.");
             
@@ -649,7 +649,7 @@
                 alert(`You are ${hole.paces} paces away. Resetting to chip station!`);
                 hole.remainingYardage = hole.paces; 
             } else {
-                hole.zone = 'putt'; // Pre-saves for when you come back to putting
+                hole.zone = 'putt'; 
                 let nextIndex = getNextIncompleteIndex();
                 if (nextIndex !== null) {
                     state.currentHoleIndex = nextIndex;
@@ -683,20 +683,23 @@
         // TRUE SKIPPING PIPELINE: Checks if yardage threshold drops to zero
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || (hole.par === 3 && hole.zone === 'tee'))) {
             hole.remainingYardage = 0;
-            hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
+            // Randomizes paces away between 2 and 9 (wider dispersion)
+            hole.paces = Math.floor(Math.random() * (9 - 2 + 1)) + 2; 
             return true; 
         }
 
         if (hole.recordedShotResult === 'On Target') {
             hole.remainingYardage -= clubDistance;
         } else if (hole.recordedShotResult === 'Slightly Off') {
-            let penalty = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+            // WIDER DISPERSION: 5 to 25 yard penalty spread
+            let penalty = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
-            if (hole.remainingYardage < 5) hole.remainingYardage = Math.floor(Math.random() * 10) + 5; 
+            if (hole.remainingYardage < 5) hole.remainingYardage = Math.floor(Math.random() * 12) + 5; 
         } else if (hole.recordedShotResult === 'Way Off') {
-            let penalty = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+            // WIDER DISPERSION: 20 to 45 yard penalty spread
+            let penalty = Math.floor(Math.random() * (45 - 20 + 1)) + 20;
             hole.remainingYardage = (hole.remainingYardage - clubDistance) + penalty;
-            if (hole.remainingYardage < 15) hole.remainingYardage = Math.floor(Math.random() * 15) + 15; 
+            if (hole.remainingYardage < 15) hole.remainingYardage = Math.floor(Math.random() * 18) + 15; 
         } else if (hole.recordedShotResult === 'Mishit') {
             alert("Mishit! Take a +1 penalty stroke. Ball remains at current spot.");
             hole.strokes++; 

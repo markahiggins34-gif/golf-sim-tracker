@@ -208,26 +208,20 @@
             <input type="number" id="input-chip-paces" style="text-align: center; font-size: 24px; font-weight: bold;" placeholder="Paces to Hole" inputmode="numeric" max="7">
         </div>
 
-        <!-- ZONE 4: PUTTING MODULE -->
+        <!-- ZONE 4: PUTTING MODULE (REVAMPED TO PUTTING RESULT) -->
         <div id="puttingModule" class="card hidden">
             <div class="hole-header">Putting Green</div>
             <div class="giant-target-text" id="ui-putt-paces">7 PACES</div>
             <div class="mental-cue">PLACES We Go. Back of left hand low. Focus on speed.</div>
 
-            <label>Total Putts to Finish Hole</label>
+            <label>Putting Result</label>
             <div class="btn-grid">
-                <button class="btn putt-btn" onclick="selectPutts(this, 1)">1 Putt</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 2)">2 Putts</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 3)">3 Putts[cite: 1]</button>
-                <button class="btn putt-btn" onclick="selectPutts(this, 4)">4+ Putts</button>
-            </div>
-
-            <label>How Many Putts Were Left Short?[cite: 1]</label>
-            <div class="btn-grid">
-                <button class="btn short-btn" onclick="selectShort(this, 0)">0 Short</button>
-                <button class="btn short-btn" onclick="selectShort(this, 1)">1 Short</button>
-                <button class="btn short-btn" onclick="selectShort(this, 2)">2 Short</button>
-                <button class="btn short-btn" onclick="selectShort(this, 3)">3+ Short</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'Drain It', 1)">Drain It</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'In the Side', 1)">In the Side</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'Good Zone', 2)">Good Zone</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'Bad Zone', 2)">Bad Zone</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'Too Short', 3)">Too Short</button>
+                <button class="btn putt-res-btn" onclick="selectPuttResult(this, 'Too Long', 3)">Too Long</button>
             </div>
         </div>
 
@@ -254,7 +248,7 @@
                         <th>Hole</th>
                         <th>Par</th>
                         <th>Score</th>
-                        <th>Putts (Short)</th>
+                        <th>Putts</th>
                         <th>Score / Shape</th>
                     </tr>
                 </thead>
@@ -293,12 +287,12 @@
     };
 
     let holesLedger = [
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 5, type: "Par 5", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, shortPutts: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false }
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
+        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
+        { par: 5, type: "Par 5", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
+        { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false },
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false }
     ];
 
     function getRandomYardage(par) {
@@ -319,7 +313,7 @@
             h.zone = 'tee';
             h.paces = null;
             h.totalPutts = null;
-            h.shortPutts = null;
+            h.puttResultText = null;
             h.recordedShotResult = null;
             h.recordedModifier = null;
             h.recordedLaunch = '';
@@ -335,7 +329,6 @@
     }
 
     function takeSnapshot() {
-        // Deep clone state snapshot including current DOM input values
         state.historyStack.push({
             currentHoleIndex: state.currentHoleIndex,
             ledgerCopy: JSON.parse(JSON.stringify(holesLedger)),
@@ -375,7 +368,6 @@
             document.getElementById('fullSwingModule').classList.remove('hidden');
             document.getElementById('ui-hole-title').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | ${hole.startYardage} Yds`;
             
-            // Standard Navigation Layout for Full Swings
             document.getElementById('btn-main-action').innerText = "Go to Next Hole";
             document.getElementById('btn-main-action').className = "btn btn-action";
             document.getElementById('btn-sub-action').innerText = "Go to Next Shot";
@@ -413,7 +405,6 @@
             document.getElementById('chippingModule').classList.remove('hidden');
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
             
-            // FLIPPED BUTTON POSITIONS FOR CONSISTENCY (Primary left, Secondary right)
             document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Next Hole";
             document.getElementById('btn-main-action').className = "btn btn-action";
             document.getElementById('btn-sub-action').innerText = "Submit Chip & Go to Green";
@@ -430,11 +421,8 @@
             document.getElementById('btn-main-action').className = "btn btn-action";
             document.getElementById('btn-sub-action').classList.add('hidden');
 
-            document.querySelectorAll('.putt-btn').forEach(b => {
-                b.className = (hole.totalPutts !== null && parseInt(b.innerText) === hole.totalPutts) ? "btn putt-btn selected" : "btn putt-btn";
-            });
-            document.querySelectorAll('.short-btn').forEach(b => {
-                b.className = (hole.shortPutts !== null && parseInt(b.innerText) === hole.shortPutts) ? "btn short-btn selected" : "btn short-btn";
+            document.querySelectorAll('.putt-res-btn').forEach(b => {
+                b.className = (hole.puttResultText && b.innerText === hole.puttResultText) ? "btn putt-res-btn selected" : "btn putt-res-btn";
             });
         }
     }
@@ -448,7 +436,7 @@
         
         document.getElementById('ui-single-score-title').innerText = `Hole ${state.currentHoleIndex + 1} Complete!`;
         document.getElementById('ui-single-score-breakdown').innerText = `Total Score: ${hole.strokes} Strokes`;
-        document.getElementById('ui-single-score-sub').innerText = `Par ${hole.par} | ${hole.totalPutts} Putts (${hole.shortPutts} Short)`;
+        document.getElementById('ui-single-score-sub').innerText = `Par ${hole.par} | Putts: ${hole.totalPutts} (${hole.puttResultText})`;
 
         let nextIncIdx = getNextIncompleteIndex();
         let nextHoleBtn = document.getElementById('btn-next-putt-route');
@@ -512,13 +500,11 @@
         let totalPar = 0;
         let totalStrokes = 0;
         let totalPutts = 0;
-        let totalShortPutts = 0;
 
         holesLedger.forEach((h, idx) => {
             totalPar += h.par;
             totalStrokes += h.strokes;
             totalPutts += h.totalPutts || 0;
-            totalShortPutts += h.shortPutts || 0;
 
             let diff = h.strokes - h.par;
             let badgeClass = "sc-badge sc-par";
@@ -534,7 +520,7 @@
                 <td>${idx + 1}</td>
                 <td>${h.par}</td>
                 <td style="font-weight:bold;">${h.strokes}</td>
-                <td>${h.totalPutts} (${h.shortPutts})</td>
+                <td>${h.totalPutts}</td>
                 <td><div class="sc-badge-wrapper"><span class="${badgeClass}">${visualName}</span></div></td>
             </tr>`;
             container.innerHTML += row;
@@ -547,7 +533,7 @@
             <td>TOT</td>
             <td>${totalPar}</td>
             <td style="font-weight:900; color:#0b4524;">${totalStrokes}</td>
-            <td>${totalPutts} (${totalShortPutts})</td>
+            <td>${totalPutts}</td>
             <td style="font-weight:bold;">${totalSign}</td>
         `;
 
@@ -578,15 +564,11 @@
         element.classList.add('selected');
     }
 
-    function selectPutts(element, val) {
-        holesLedger[state.currentHoleIndex].totalPutts = val;
-        document.querySelectorAll('.putt-btn').forEach(b => b.classList.remove('selected'));
-        element.classList.add('selected');
-    }
-
-    function selectShort(element, val) {
-        holesLedger[state.currentHoleIndex].shortPutts = val;
-        document.querySelectorAll('.short-btn').forEach(b => b.classList.remove('selected'));
+    function selectPuttResult(element, label, count) {
+        let hole = holesLedger[state.currentHoleIndex];
+        hole.puttResultText = label;
+        hole.totalPutts = count;
+        document.querySelectorAll('.putt-res-btn').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
     }
 
@@ -603,7 +585,7 @@
             
             if (skippedChipping) {
                 hole.zone = 'putt';
-            } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { // Max chipping distance 40 Yds
+            } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) {
                 hole.zone = 'chip';
             } else {
                 hole.zone = 'approach';
@@ -616,12 +598,10 @@
             syncHoleView();
 
         } else if (hole.zone === 'chip') {
-            // Main Button in Chipping: Submit Chip & Go to Next Hole
             let pInput = document.getElementById('input-chip-paces').value;
             let paces = parseInt(pInput);
             if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
             
-            // STRICT PUTTING BOUNDARY CAP: Max 7 paces
             if (paces > 7) {
                 alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
                 return;
@@ -630,7 +610,7 @@
             takeSnapshot();
             hole.paces = paces;
             hole.strokes++;
-            hole.zone = 'putt'; // Locks putting paces to memory
+            hole.zone = 'putt'; 
 
             let nextIndex = getNextIncompleteIndex();
             if (nextIndex !== null) {
@@ -639,7 +619,7 @@
             syncHoleView();
 
         } else if (hole.zone === 'putt') {
-            if (hole.totalPutts === null || hole.shortPutts === null) return alert("Please answer both putting questions.");
+            if (!hole.puttResultText) return alert("Please select a Putting Result.");
             takeSnapshot();
             
             hole.strokes += hole.totalPutts; 
@@ -653,12 +633,10 @@
         let hole = holesLedger[state.currentHoleIndex];
 
         if (hole.zone === 'chip') {
-            // Secondary Button in Chipping: Submit Chip & Go to Green
             let pInput = document.getElementById('input-chip-paces').value;
             let paces = parseInt(pInput);
             if (isNaN(paces) || paces < 0) return alert("Enter valid number of paces.");
             
-            // STRICT PUTTING BOUNDARY CAP: Max 7 paces
             if (paces > 7) {
                 alert(`You are ${paces} paces away (outside your 7-pace WELLPUTT mat). You must chip again!`);
                 return;
@@ -680,7 +658,7 @@
 
         if (skippedChipping) {
             hole.zone = 'putt';
-        } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { // Max chipping distance 40 Yds
+        } else if (hole.remainingYardage <= 40 && hole.remainingYardage > 0) { 
             hole.zone = 'chip';
         } else {
             hole.zone = 'approach';
@@ -693,10 +671,8 @@
         hole.recordedClub = clubDistance;
         hole.recordedLaunch = document.getElementById('input-launch').value;
 
-        // TRUE SKIPPING PIPELINE: Checks if yardage threshold drops to zero
         if (hole.recordedShotResult === 'On Target' && (hole.remainingYardage - clubDistance <= 0 || (hole.par === 3 && hole.zone === 'tee'))) {
             hole.remainingYardage = 0;
-            // Randomizes paces away between 2 and 7 (strict max 7 paces for mat)
             hole.paces = Math.floor(Math.random() * (7 - 2 + 1)) + 2; 
             return true; 
         }
@@ -730,7 +706,6 @@
         
         syncHoleView();
 
-        // PERSIST TYPED VALUES ON BACK BUTTON: Restores saved chip paces value to input field
         if (checkpoint.chipPacesValue !== undefined) {
             document.getElementById('input-chip-paces').value = checkpoint.chipPacesValue;
         }

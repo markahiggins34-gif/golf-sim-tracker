@@ -44,8 +44,9 @@
         .progress-fill { height: 100%; background-color: var(--accent-yellow); width: 16.6%; transition: width 0.3s ease; }
         
         /* Dashboard */
-        .dashboard { text-align: center; margin-top: 50px; }
-        .dashboard h1 { margin-bottom: 30px; font-size: 32px; color: var(--accent-yellow); font-weight: 800; }
+        .dashboard { text-align: center; margin-top: 40px; }
+        .dashboard h1 { margin-bottom: 25px; font-size: 32px; color: var(--accent-yellow); font-weight: 800; }
+        .dashboard-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; font-style: italic; }
         
         /* Game Cards */
         .card { background-color: var(--bg-panel); border-radius: 16px; padding: 15px; border: 1px solid var(--border-color); }
@@ -143,7 +144,11 @@
     <!-- DASHBOARD VIEW -->
     <div id="dashboardView" class="dashboard">
         <h1>Mark's Golf Sim</h1>
-        <button class="btn btn-action" onclick="startRound()" style="padding: 16px 32px; font-size: 18px; border-radius: 12px;">Start New Round</button>
+        <div class="dashboard-subtitle">Double-Bogey Avoidance Engine</div>
+        <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 320px; margin: 0 auto;">
+            <button class="btn btn-action" onclick="startRound('full')" style="padding: 16px 20px; font-size: 16px; border-radius: 12px;">Full Round Mode (Tee-to-Green)</button>
+            <button class="btn btn-outline" onclick="startRound('short')" style="padding: 16px 20px; font-size: 16px; border-radius: 12px; border: 2px solid var(--accent-yellow);">Chipping & Putting Only Mode</button>
+        </div>
     </div>
 
     <!-- MAIN GAME PANEL -->
@@ -199,7 +204,7 @@
 
         <!-- ZONE 3: CHIPPING MODULE -->
         <div id="chippingModule" class="card hidden">
-            <div class="hole-header">Chipping Zone</div>
+            <div class="hole-header" id="ui-chip-hole-header">Chipping Zone</div>
             <div class="giant-target-text" id="ui-chip-distance">22 YDS</div>
             <div class="mental-cue">Weight on left heel. Lock the left hip. Grip down.</div>
 
@@ -242,7 +247,7 @@
             <h3 id="ui-single-score-breakdown" style="text-align: center; font-weight: 700;">Total Score: 4</h3>
             <p id="ui-single-score-sub" style="text-align: center; color: #555; font-size: 14px; margin-bottom: 20px;"></p>
             <div class="btn-grid" style="margin-top: 15px;">
-                <button class="btn btn-action" onclick="advanceHole('tee')">Next Hole Tee</button>
+                <button class="btn btn-action" id="btn-next-hole-route" onclick="advanceHole('tee')">Next Hole</button>
                 <button class="btn btn-outline" id="btn-next-putt-route" onclick="advanceHole('putt')">Next Hole Putt</button>
             </div>
         </div>
@@ -298,7 +303,8 @@
     let state = {
         currentHoleIndex: 0,
         historyStack: [],
-        routingChoice: 'tee' 
+        routingChoice: 'tee',
+        gameMode: 'full' // 'full' or 'short'
     };
 
     let holesLedger = [
@@ -307,25 +313,30 @@
         { par: 5, type: "Par 5", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
         { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
         { par: 3, type: "Par 3", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false },
-        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', shotsLog: [], complete: false }
+        { par: 4, type: "Par 4", startYardage: 0, remainingYardage: 0, strokes: 0, zone: 'tee', paces: null, totalPutts: null, puttResultText: null, recordedShotResult: null, recordedModifier: null, recordedClub: null, recordedLaunch: '', complete: false }
     ];
 
-    function getRandomYardage(par) {
-        if (par === 3) return Math.floor(Math.random() * (180 - 120 + 1)) + 120;
-        if (par === 4) return Math.floor(Math.random() * (440 - 340 + 1)) + 340;
-        if (par === 5) return Math.floor(Math.random() * (540 - 470 + 1)) + 470;
+    function getRandomYardage(par, mode) {
+        if (mode === 'short') {
+            if (par === 3) return Math.floor(Math.random() * (15 - 5 + 1)) + 5;   // 5-15 Yards
+            if (par === 4) return Math.floor(Math.random() * (30 - 10 + 1)) + 10;  // 10-30 Yards
+            if (par === 5) return Math.floor(Math.random() * (35 - 20 + 1)) + 20;  // 20-35 Yards
+        } else {
+            if (par === 3) return Math.floor(Math.random() * (180 - 120 + 1)) + 120;
+            if (par === 4) return Math.floor(Math.random() * (440 - 340 + 1)) + 340;
+            if (par === 5) return Math.floor(Math.random() * (540 - 470 + 1)) + 470;
+        }
     }
 
-    function startRound() {
+    function startRound(mode) {
+        state.gameMode = mode;
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('gameView').classList.remove('hidden');
         
         holesLedger.forEach(h => {
-            h.startYardage = getRandomYardage(h.par);
+            h.startYardage = getRandomYardage(h.par, mode);
             h.remainingYardage = h.startYardage;
-            h.strokes = 0;
             h.complete = false;
-            h.zone = 'tee';
             h.paces = null;
             h.totalPutts = null;
             h.puttResultText = null;
@@ -333,6 +344,15 @@
             h.recordedModifier = null;
             h.recordedLaunch = '';
             h.shotsLog = [];
+
+            if (mode === 'short') {
+                h.zone = 'chip';
+                // Assign realistic baseline incoming stroke counts for chipping mode
+                h.strokes = (h.par === 3) ? 1 : (h.par === 4) ? 2 : 2; 
+            } else {
+                h.zone = 'tee';
+                h.strokes = 0;
+            }
         });
 
         state.currentHoleIndex = 0;
@@ -430,6 +450,7 @@
         } else if (hole.zone === 'chip') {
             document.body.className = 'theme-chip';
             document.getElementById('chippingModule').classList.remove('hidden');
+            document.getElementById('ui-chip-hole-header').innerText = `Hole ${state.currentHoleIndex + 1} | ${hole.type} | Chipping Zone`;
             document.getElementById('ui-chip-distance').innerText = `${hole.remainingYardage} YDS`;
             
             document.getElementById('btn-main-action').innerText = "Submit Chip & Go to Next Hole";
@@ -470,6 +491,9 @@
 
         let nextIncIdx = getNextIncompleteIndex();
         let nextHoleBtn = document.getElementById('btn-next-putt-route');
+        
+        document.getElementById('btn-next-hole-route').innerText = (state.gameMode === 'short') ? "Next Hole Chip" : "Next Hole Tee";
+
         if (nextIncIdx !== null && holesLedger[nextIncIdx].zone === 'putt') {
             nextHoleBtn.classList.remove('hidden');
         } else {
